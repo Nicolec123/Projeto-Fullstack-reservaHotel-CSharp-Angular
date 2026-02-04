@@ -1,0 +1,217 @@
+<div class="container">
+  <h1>Painel administrativo</h1>
+  <a routerLink="/quartos" class="link">← Voltar</a>
+
+  <div class="tabs">
+    <button [class.active]="tab() === 'inicio'" (click)="setTab('inicio')">Início</button>
+    <button [class.active]="tab() === 'rooms'" (click)="setTab('rooms')">Quartos</button>
+    <button [class.active]="tab() === 'reservations'" (click)="setTab('reservations')">Reservas</button>
+    <button [class.active]="tab() === 'users'" (click)="setTab('users')">Usuários</button>
+    <button [class.active]="tab() === 'services'" (click)="setTab('services')">Serviços</button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading">Carregando...</p>
+  } @else if (tab() === 'inicio') {
+    <div class="dashboard">
+      <h2>Visão geral do site</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">🛏️</span>
+          <span class="stat-value">{{ roomTotal() }}</span>
+          <span class="stat-label">Quartos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">📅</span>
+          <span class="stat-value">{{ resTotal() }}</span>
+          <span class="stat-label">Reservas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">👥</span>
+          <span class="stat-value">{{ userTotal() }}</span>
+          <span class="stat-label">Usuários</span>
+        </div>
+      </div>
+      <div class="dashboard-actions">
+        <button type="button" class="btn-tab" (click)="setTab('rooms')">Gerenciar quartos</button>
+        <button type="button" class="btn-tab" (click)="setTab('reservations')">Ver reservas</button>
+        <button type="button" class="btn-tab" (click)="setTab('users')">Ver usuários</button>
+        <button type="button" class="btn-tab" (click)="setTab('services')">Ver serviços</button>
+      </div>
+    </div>
+  } @else if (tab() === 'rooms') {
+    <div class="form-card">
+      <h2>Cadastrar quarto</h2>
+      @if (roomError()) {
+        <p class="error">{{ roomError() }}</p>
+      }
+      <form [formGroup]="roomForm" (ngSubmit)="createRoom()">
+        <input formControlName="numero" placeholder="Número (ex: 101)" />
+        <select formControlName="tipo">
+          <option value="Standard">Standard</option>
+          <option value="Luxo">Luxo</option>
+          <option value="Suíte">Suíte</option>
+        </select>
+        <input type="number" formControlName="precoDiaria" placeholder="Preço/dia" min="1" step="0.01" />
+        <button type="submit">Cadastrar</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Tipo</th>
+            <th>Preço/dia</th>
+            <th>Estado</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rooms(); track r.id) {
+            <tr>
+              <td>{{ r.numero }}</td>
+              <td>{{ r.tipo }}</td>
+              <td>R$ {{ r.precoDiaria | number:'1.2-2' }}</td>
+              <td>{{ r.bloqueado ? 'Bloqueado' : 'Disponível' }}</td>
+              <td>
+                <button type="button" class="btn-sm" (click)="toggleBlock(r)">
+                  {{ r.bloqueado ? 'Desbloquear' : 'Bloquear' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (tab() === 'reservations') {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Quarto</th>
+            <th>Hóspede</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of reservations(); track r.id) {
+            <tr>
+              <td>{{ r.roomNumero }}</td>
+              <td>{{ r.userNome }}</td>
+              <td>{{ formatDate(r.dataInicio) }}</td>
+              <td>{{ formatDate(r.dataFim) }}</td>
+              <td>{{ r.status }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (tab() === 'users') {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Cadastro</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of users(); track u.id) {
+            <tr>
+              <td>{{ u.nome }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.role }}</td>
+              <td>{{ formatDate(u.createdAt) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (tab() === 'services') {
+    <div class="services-admin">
+      <h2>Serviços e Comodidades do Hotel</h2>
+      <p class="services-intro">Visualize todos os serviços cadastrados no sistema, incluindo informações detalhadas, horários, localização e contatos.</p>
+      
+      <div class="services-grid-admin">
+        @for (servico of hotel.servicos; track servico.titulo) {
+          @let detail = getServiceDetail(servico.id);
+          <div class="service-card-admin">
+            <div class="service-header-admin">
+              <span class="service-icon-admin">{{ servico.icon }}</span>
+              <h3>{{ servico.titulo }}</h3>
+            </div>
+            <div class="service-body-admin">
+              <p class="service-desc-admin">{{ servico.desc }}</p>
+              
+              @if (detail) {
+                <div class="service-details-admin">
+                  @if (detail.horario) {
+                    <div class="detail-row">
+                      <strong>⏰ Horário:</strong> <span>{{ detail.horario }}</span>
+                    </div>
+                  }
+                  @if (detail.localizacao) {
+                    <div class="detail-row">
+                      <strong>📍 Localização:</strong> <span>{{ detail.localizacao }}</span>
+                    </div>
+                  }
+                  @if (detail.capacidade) {
+                    <div class="detail-row">
+                      <strong>👥 Capacidade:</strong> <span>{{ detail.capacidade }}</span>
+                    </div>
+                  }
+                  @if (detail.preco) {
+                    <div class="detail-row">
+                      <strong>💰 Preço:</strong> <span>{{ detail.preco }}</span>
+                    </div>
+                  }
+                  @if (detail.itensInclusos && detail.itensInclusos.length > 0) {
+                    <div class="detail-section">
+                      <strong>Inclui:</strong>
+                      <ul>
+                        @for (item of detail.itensInclusos; track item) {
+                          <li>{{ item }}</li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                  @if (detail.contato) {
+                    <div class="detail-row contact">
+                      <strong>📞 Contato:</strong> <span>{{ detail.contato }}</span>
+                    </div>
+                  }
+                  <div class="service-images-count">
+                    <strong>📸 Imagens:</strong> {{ detail.imagens.length }} foto{{ detail.imagens.length > 1 ? 's' : '' }}
+                  </div>
+                </div>
+              } @else {
+                <p class="no-detail">Detalhes completos não disponíveis</p>
+              }
+              
+              <a [routerLink]="['/servicos', servico.id]" target="_blank" class="view-link">Ver página completa →</a>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <div class="services-summary">
+        <h3>Resumo</h3>
+        <p><strong>Total de serviços cadastrados:</strong> {{ hotel.servicos.length }}</p>
+        <p><strong>Serviços com detalhes completos:</strong> {{ serviceDetails.length }}</p>
+      </div>
+    </div>
+  }
+
+  @if (tab() !== 'inicio' && (roomTotal() > pageSize || resTotal() > pageSize || userTotal() > pageSize)) {
+    <div class="pagination">
+      <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
+      <span>Página {{ page() }} de {{ totalPages() }}</span>
+      <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
+    </div>
+  }
+</div>

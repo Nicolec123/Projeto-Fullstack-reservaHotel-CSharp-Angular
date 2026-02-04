@@ -1,0 +1,93 @@
+<div class="container">
+  <header class="page-header">
+    <h1>Quartos disponíveis</h1>
+    <p class="subtitle">Conforto e elegância para sua estadia</p>
+  </header>
+
+  <div class="search-section">
+    <app-search-bar></app-search-bar>
+  </div>
+
+  @if (auth.isLoggedIn()) {
+    <div class="filters">
+      <label>
+        <span>Check-in</span>
+        <input type="text" mwlFlatpickr [ngModel]="dataInicio()" (ngModelChange)="dataInicio.set($event)" [options]="flatpickrOptions" placeholder="Selecione a data" />
+      </label>
+      <label>
+        <span>Check-out</span>
+        <input type="text" mwlFlatpickr [ngModel]="dataFim()" (ngModelChange)="dataFim.set($event)" [options]="flatpickrOptions" placeholder="Selecione a data" />
+      </label>
+      <button type="button" class="btn btn-primary" (click)="searchByDate()">Ver disponíveis</button>
+      @if (checkAvailability()) {
+        <button type="button" class="btn btn-secondary" (click)="clearDates()">Limpar</button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando quartos...</p>
+    </div>
+  } @else {
+    <div class="room-list">
+      @for (room of rooms(); track room.id) {
+        @let images = getRoomImages(room.numero);
+        @let idx = getImageIndex(room.id);
+        <article class="room-card" [class.bloqueado]="room.bloqueado">
+          <div class="card-carousel">
+            @if (images.length > 0) {
+              <img [src]="images[idx]" [alt]="'Quarto ' + room.numero" class="carousel-img" />
+              @if (images.length > 1) {
+                <button type="button" class="carousel-btn prev" (click)="prevImage(room)" aria-label="Anterior">‹</button>
+                <button type="button" class="carousel-btn next" (click)="nextImage(room)" aria-label="Próxima">›</button>
+                <div class="carousel-dots">
+                  @for (img of images; track $index) {
+                    <button type="button" class="dot" [class.active]="idx === $index" (click)="setImageIndex(room, $index)"></button>
+                  }
+                </div>
+              }
+            }
+            @if (room.bloqueado) {
+              <span class="badge badge-blocked">Bloqueado</span>
+            }
+          </div>
+          <div class="card-info">
+            <h3>Quarto {{ room.numero }}</h3>
+            <p class="tipo">{{ room.tipo }}</p>
+            <p class="resumo">{{ getResumo(room.tipo) }}</p>
+            <p class="preco">R$ {{ room.precoDiaria | number:'1.2-2' }} <span>/ noite</span></p>
+            <div class="card-actions">
+              <a [routerLink]="['/quartos', room.id]" target="_blank" rel="noopener noreferrer" class="btn btn-details">
+                Ver mais detalhes
+              </a>
+              <a [href]="getWhatsAppUrl(room)" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+                Entrar em contato
+              </a>
+              @if (!room.bloqueado && !auth.isAdmin()) {
+                <button type="button" class="btn btn-reserve" (click)="goToReserve(room)">
+                  Reservar
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (!checkAvailability() && total() > 0) {
+      <div class="pagination">
+        <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
+        <span>Página {{ page() }} de {{ totalPages() }}</span>
+        <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
+      </div>
+    }
+  }
+
+  @if (!loading() && rooms().length === 0) {
+    <div class="empty-state">
+      <p>Nenhum quarto encontrado.</p>
+    </div>
+  }
+</div>

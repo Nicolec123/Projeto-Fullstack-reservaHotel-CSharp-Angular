@@ -1,0 +1,121 @@
+@if (loading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Carregando...</p>
+  </div>
+} @else {
+  @if (room(); as r) {
+    @let desc = getDescription(r.tipo);
+    <div class="detail-page">
+    <a routerLink="/quartos" class="back-link">← Voltar aos quartos</a>
+
+    <header class="detail-header">
+      <h1>Quarto {{ r.numero }}</h1>
+      <p class="tipo">{{ r.tipo }}</p>
+      <p class="preco">R$ {{ r.precoDiaria | number:'1.2-2' }} <span>/ noite</span></p>
+      @if (r.bloqueado) {
+        <span class="badge">Bloqueado</span>
+      }
+    </header>
+
+    <div class="detail-content">
+      <div class="gallery-section">
+        @let images = getRoomImages(r.numero);
+        @if (images.length > 0) {
+          <div class="gallery-main">
+            <img [src]="images[imageIndex()]" [alt]="'Quarto ' + r.numero" />
+            @if (images.length > 1) {
+              <button type="button" class="gallery-btn prev" (click)="prevImage()" aria-label="Anterior">‹</button>
+              <button type="button" class="gallery-btn next" (click)="nextImage()" aria-label="Próxima">›</button>
+              <div class="gallery-dots">
+                @for (img of images; track $index) {
+                  <button type="button" class="dot" [class.active]="imageIndex() === $index" (click)="imageIndex.set($index)"></button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="info-section">
+        <section class="desc-block">
+          <h2>🛏️ Tipo e tamanho</h2>
+          <p><strong>Categoria:</strong> {{ r.tipo }}</p>
+          <p><strong>Metragem:</strong> {{ desc.metragem }}</p>
+          <p><strong>Capacidade:</strong> {{ desc.capacidade }}</p>
+          <p><strong>Tipo de cama:</strong> {{ desc.cama }}</p>
+        </section>
+
+        <section class="desc-block">
+          <h2>🪟 Vista e ambiente</h2>
+          <p>{{ desc.vista }}</p>
+        </section>
+
+        <section class="desc-block">
+          <h2>🛁 Banheiro</h2>
+          <p>{{ desc.banheiro }}</p>
+        </section>
+
+        <section class="desc-block">
+          <h2>📺 Equipamentos e conforto</h2>
+          <p>{{ desc.equipamentos }}</p>
+        </section>
+
+        <section class="desc-block">
+          <h2>☕ Extras</h2>
+          <p>{{ desc.extras }}</p>
+        </section>
+
+        <section class="desc-block experiencia">
+          <h2>✨ Experiência</h2>
+          <p>{{ desc.experiencia }}</p>
+        </section>
+
+        <div class="desc-resumo">
+          <p>{{ desc.descricaoCompleta }}</p>
+        </div>
+
+        <section class="reviews-section">
+          <h2>⭐ Avaliações dos hóspedes</h2>
+          @let reviews = getRoomReviews(r.numero);
+          @if (reviews.length > 0) {
+            <div class="reviews-list">
+              @for (review of reviews; track review.nome + review.data) {
+                <div class="review-card">
+                  <div class="review-header">
+                    <img [src]="review.avatarUrl" [alt]="review.nome" class="review-avatar" />
+                    <div class="review-meta">
+                      <strong>{{ review.nome }}</strong>
+                      <span class="review-date">{{ review.data | date:'dd/MM/yyyy' }}</span>
+                      <div class="review-stars" [attr.aria-label]="review.nota + ' de 5 estrelas'">
+                        @for (star of [1,2,3,4,5]; track star) {
+                          <span class="star" [class.filled]="star <= review.nota">★</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <p class="review-text">{{ review.texto }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="no-reviews">Ainda não há avaliações para este quarto.</p>
+          }
+        </section>
+
+        <div class="detail-actions">
+          <a [href]="getWhatsAppUrl(r)" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+            Entrar em contato
+          </a>
+          @if (!r.bloqueado && !auth.isAdmin()) {
+            <a [routerLink]="['/quartos', r.id, 'simular']" class="btn btn-simular">Quarto + Spa (simular)</a>
+            <button type="button" class="btn btn-reserve" (click)="goToReserve(r)">
+              Reservar só quarto
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+}

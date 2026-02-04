@@ -1,0 +1,15 @@
+<div class="page-container">
+  <a routerLink="/" class="back">← Voltar</a>
+  <article class="content">
+    <h1>Sobre o {{ hotel.nome }}</h1>
+    <p class="lead">{{ hotel.sobre }}</p>
+    <h2>Nossa história</h2>
+    <p>Desde 1985, oferecemos hospitalidade de qualidade no coração da cidade. O hotel passou por diversas reformas, sempre mantendo o charme original e incorporando as melhores práticas de conforto e sustentabilidade.</p>
+    <h2>Diferenciais</h2>
+    <ul>
+      @for (item of hotel.destaque; track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </article>
+</div>

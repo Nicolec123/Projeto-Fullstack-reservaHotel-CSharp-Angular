@@ -1,0 +1,30 @@
+<div class="page-container">
+  <a routerLink="/" class="back">← Voltar</a>
+  <h1>Políticas do hotel</h1>
+
+  <div class="policy-card">
+    <h2>🕐 Check-in e Check-out</h2>
+    <p><strong>Check-in:</strong> a partir das {{ hotel.checkIn }}</p>
+    <p><strong>Check-out:</strong> até às {{ hotel.checkOut }}</p>
+  </div>
+
+  <div class="policy-card">
+    <h2>❌ Cancelamento</h2>
+    <p>{{ hotel.politicas.cancelamento }}</p>
+  </div>
+
+  <div class="policy-card">
+    <h2>🐕 Pets</h2>
+    <p>{{ hotel.politicas.pets }}</p>
+  </div>
+
+  <div class="policy-card">
+    <h2>👶 Crianças</h2>
+    <p>{{ hotel.politicas.criancas }}</p>
+  </div>
+
+  <div class="policy-card">
+    <h2>🚬 Fumantes</h2>
+    <p>{{ hotel.politicas.fumantes }}</p>
+  </div>
+</div>

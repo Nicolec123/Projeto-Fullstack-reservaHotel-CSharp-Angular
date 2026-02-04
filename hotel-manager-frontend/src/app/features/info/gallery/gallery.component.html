@@ -1,0 +1,23 @@
+<div class="page-container">
+  <a routerLink="/" class="back">← Voltar</a>
+  <h1>Galeria</h1>
+  <p class="subtitle">Conheça nossos espaços</p>
+  <div class="gallery-grid">
+    @for (img of images; track img.alt; let i = $index) {
+      <div class="gallery-item" (click)="open(i)">
+        <img [src]="img.url" [alt]="img.alt" loading="lazy" />
+        <span class="caption">{{ img.categoria }}</span>
+      </div>
+    }
+  </div>
+</div>
+
+@let idx = selected();
+@if (idx !== null) {
+  <div class="lightbox" (click)="close()">
+    <button type="button" class="lb-close" (click)="close()">×</button>
+    <button type="button" class="lb-nav prev" (click)="prev(); $event.stopPropagation()">‹</button>
+    <img [src]="images[idx].url" [alt]="images[idx].alt" (click)="$event.stopPropagation()" />
+    <button type="button" class="lb-nav next" (click)="next(); $event.stopPropagation()">›</button>
+  </div>
+}

@@ -1,0 +1,479 @@
+<div class="reserve-page">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando...</p>
+    </div>
+  } @else {
+    @if (room(); as r) {
+      <div class="reserve-container">
+        <a routerLink="/quartos" class="back-link">← Voltar aos quartos</a>
+
+        <div class="steps-indicator">
+          <div class="step-item" [class.active]="step() >= 1" [class.done]="step() > 1">
+            <span class="step-num">1</span>
+            <span class="step-label">Datas</span>
+          </div>
+          <div class="step-line" [class.done]="step() > 1"></div>
+          <div class="step-item" [class.active]="step() >= 2" [class.done]="step() > 2">
+            <span class="step-num">2</span>
+            <span class="step-label">Hóspede</span>
+          </div>
+          <div class="step-line" [class.done]="step() > 2"></div>
+          <div class="step-item" [class.active]="step() >= 3" [class.done]="step() >= 4">
+            <span class="step-num">3</span>
+            <span class="step-label">Pagamento</span>
+          </div>
+        </div>
+
+        @if (step() === 1) {
+          <section class="step-content">
+            <div class="room-preview">
+              @if (getRoomImageUrl(r.numero); as img) {
+                <img [src]="img" [alt]="'Quarto ' + r.numero" class="room-img" />
+              }
+              <div class="room-info">
+                <h1>Quarto {{ r.numero }}</h1>
+                <p class="tipo">{{ r.tipo }}</p>
+                <p class="preco">R$ {{ r.precoDiaria | number:'1.2-2' }} / noite</p>
+                @if (spaAddOn(); as spa) {
+                  <p class="spa-badge">+ Spa: {{ spa.nome }} ({{ spa.duracao }}) — R$ {{ spa.preco | number:'1.2-2' }}</p>
+                }
+              </div>
+            </div>
+
+            <div class="form-card">
+              <h2>Passo 1 — Escolha as datas</h2>
+              <p class="subtitle">Selecione check-in e check-out para a sua estadia</p>
+              @if (error()) {
+                <div class="error">{{ error() }}</div>
+              }
+              <form [formGroup]="form" (ngSubmit)="avancarParaHospede()">
+                  <div class="form-row">
+                  <label>
+                    <span>Check-in</span>
+                    <input type="date" formControlName="dataInicio" />
+                    <select formControlName="periodoCheckIn" class="periodo-select">
+                      <option value="Manhã">Manhã</option>
+                      <option value="Tarde">Tarde</option>
+                      <option value="Noite">Noite</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Check-out</span>
+                    <input type="date" formControlName="dataFim" />
+                    <select formControlName="periodoCheckOut" class="periodo-select">
+                      <option value="Manhã">Manhã</option>
+                      <option value="Tarde">Tarde</option>
+                      <option value="Noite">Noite</option>
+                    </select>
+                  </label>
+                </div>
+                @if (noites > 0) {
+                  <p class="preview-price">{{ noites }} {{ noites === 1 ? 'noite' : 'noites' }}{{ spaAddOn() ? ' + Spa' : '' }} · Total estimado: R$ {{ precoTotal | number:'1.2-2' }}</p>
+                }
+                <button type="submit" class="btn-primary" [disabled]="form.invalid">Continuar →</button>
+              </form>
+            </div>
+          </section>
+        }
+
+        @if (step() === 2) {
+          <section class="step-content">
+            <div class="form-card">
+              <h2>Passo 2 — Dados do hóspede e ocupação</h2>
+              <p class="subtitle">Confirme seus dados e informe quantas pessoas vão se hospedar</p>
+              <form [formGroup]="form" (ngSubmit)="avancarParaRevisao()">
+                <div class="form-section">
+                  <h3>Dados pessoais</h3>
+                  <div class="form-row">
+                    <label>
+                      <span>Nome completo</span>
+                      <input type="text" [value]="auth.currentUser()?.nome" readonly />
+                    </label>
+                    <label>
+                      <span>E-mail</span>
+                      <input type="email" [value]="auth.currentUser()?.email" readonly />
+                    </label>
+                    <label>
+                      <span>Telefone (opcional)</span>
+                      <input type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <h3>Ocupação do quarto</h3>
+                  <div class="occupancy-grid">
+                    <label>
+                      <span>👤 Adultos</span>
+                      <input type="number" formControlName="adultos" min="1" max="10" />
+                      <small>Mínimo 1 adulto</small>
+                    </label>
+                    <label>
+                      <span>👶 Crianças</span>
+                      <input type="number" formControlName="criancas" min="0" max="10" />
+                      <small>Crianças até 5 anos: grátis<br>Crianças acima de 5 anos: R$ {{ taxaCriancaPorNoite }}/noite</small>
+                    </label>
+                    <label>
+                      <span>🐾 Pets</span>
+                      <input type="number" formControlName="pets" min="0" max="3" />
+                      <small>Taxa: R$ {{ taxaPetPorNoite }}/noite por pet<br>Máximo 3 pets</small>
+                    </label>
+                  </div>
+                  <div class="occupancy-summary">
+                    <strong>Total de hóspedes: {{ totalHospedes }} pessoa{{ totalHospedes > 1 ? 's' : '' }}</strong>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <h3>Hóspedes adicionais</h3>
+                  <p class="section-description">Cadastre os dados das pessoas que vão se hospedar além de você</p>
+                  
+                  @for (guest of guestsArray().controls; track $index) {
+                    <div class="guest-card">
+                      <div class="guest-header">
+                        <h4>Hóspede {{ $index + 1 }}</h4>
+                        <button type="button" class="btn-remove" (click)="removeGuest($index)">Remover</button>
+                      </div>
+                      <div class="form-row">
+                        <label>
+                          <span>Nome completo *</span>
+                          <input type="text" [formControl]="$any(guest).get('nome')" placeholder="Nome completo" />
+                        </label>
+                        <label>
+                          <span>CPF</span>
+                          <input type="text" [formControl]="$any(guest).get('cpf')" placeholder="000.000.000-00" maxlength="14" />
+                        </label>
+                      </div>
+                      <div class="form-row">
+                        <label>
+                          <span>Data de nascimento</span>
+                          <input type="date" [formControl]="$any(guest).get('dataNascimento')" />
+                        </label>
+                        <label>
+                          <span>Nacionalidade</span>
+                          <input type="text" [formControl]="$any(guest).get('nacionalidade')" placeholder="Ex: Brasileira" />
+                        </label>
+                      </div>
+                      <div class="form-row">
+                        <label>
+                          <span>Telefone</span>
+                          <input type="tel" [formControl]="$any(guest).get('telefone')" placeholder="(11) 99999-9999" />
+                        </label>
+                        <label>
+                          <span>Tipo *</span>
+                          <select [formControl]="$any(guest).get('tipo')">
+                            <option value="Adulto">Adulto</option>
+                            <option value="Criança">Criança</option>
+                          </select>
+                        </label>
+                      </div>
+                      @if ($any(guest).get('tipo')?.value === 'Criança' && $any(guest).get('dataNascimento')?.value; as dob) {
+                        @if (getIdadeFromDataNascimento(dob) !== null) {
+                          <div class="idade-calculada">
+                            <strong>Idade calculada: {{ getIdadeFromDataNascimento(dob) }} anos</strong> — {{ getIdadeFromDataNascimento(dob)! < 5 ? 'até 5 anos: sem taxa' : 'acima de 5 anos: R$ ' + taxaCriancaPorNoite + '/noite' }}
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
+
+                  <button type="button" class="btn-add-guest" (click)="addGuest()">
+                    + Adicionar hóspede
+                  </button>
+                </div>
+
+                <label class="observacoes-label">
+                  <span>Observações (opcional)</span>
+                  <textarea formControlName="observacoes" rows="5" placeholder="Ex: cama extra, horário de chegada, necessidades especiais, dados do animal de estimação..."></textarea>
+                </label>
+                <div class="actions">
+                  <button type="button" class="btn-secondary" (click)="voltarParaDatas()">← Voltar</button>
+                  <button type="submit" class="btn-primary" [disabled]="form.invalid">Continuar →</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        }
+
+        @if (step() === 3) {
+          <section class="step-content">
+            <div class="review-container" [formGroup]="form">
+              <h2>Passo 3 — Revisar e pagamento</h2>
+              <p class="review-subtitle">Confira todos os dados antes de confirmar sua reserva</p>
+              
+              @if (error()) {
+                <div class="error-large">{{ error() }}</div>
+              }
+
+              <div class="review-main-grid">
+                <!-- Quarto e Serviços -->
+                <div class="review-section">
+                  <h3 class="review-section-title">🛏️ Quarto e Serviços</h3>
+                  <div class="review-section-content">
+                    <div class="review-item-large">
+                      <div class="review-item-header">
+                        <strong>Quarto {{ r.numero }}</strong>
+                        <span class="badge-type">{{ r.tipo }}</span>
+                      </div>
+                      <div class="price-breakdown">
+                        <div class="price-line">
+                          <span>R$ {{ r.precoDiaria | number:'1.2-2' }} / noite</span>
+                          <span>× {{ noites }} {{ noites === 1 ? 'noite' : 'noites' }}</span>
+                          <span class="price-result">R$ {{ noites * r.precoDiaria | number:'1.2-2' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    @if (spaAddOn(); as spa) {
+                      <div class="review-item-large spa-item">
+                        <div class="review-item-header">
+                          <strong>🧘 Spa: {{ spa.nome }}</strong>
+                          <span class="badge-duration">{{ spa.duracao }}</span>
+                        </div>
+                        <div class="price-line">
+                          <span>Serviço único</span>
+                          <span class="price-result">R$ {{ spa.preco | number:'1.2-2' }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Datas e Estadia -->
+                <div class="review-section">
+                  <h3 class="review-section-title">📅 Datas e Estadia</h3>
+                  <div class="review-section-content">
+                    <div class="review-item">
+                      <span class="review-label">Check-in</span>
+                      <span class="review-value">{{ formatarData(form.value.dataInicio!) }} — {{ form.value.periodoCheckIn || 'Tarde' }}</span>
+                    </div>
+                    <div class="review-item">
+                      <span class="review-label">Check-out</span>
+                      <span class="review-value">{{ formatarData(form.value.dataFim!) }} — {{ form.value.periodoCheckOut || 'Manhã' }}</span>
+                    </div>
+                    <div class="review-item highlight">
+                      <span class="review-label">Período</span>
+                      <span class="review-value">{{ noites }} {{ noites === 1 ? 'noite' : 'noites' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Ocupação -->
+                <div class="review-section">
+                  <h3 class="review-section-title">👥 Ocupação</h3>
+                  <div class="review-section-content">
+                    <div class="review-item">
+                      <span class="review-label">👤 Adultos</span>
+                      <span class="review-value">{{ form.value.adultos || 1 }}</span>
+                    </div>
+                    @if ((form.value.criancas || 0) > 0) {
+                      <div class="review-item">
+                        <span class="review-label">👶 Crianças</span>
+                        <span class="review-value">{{ form.value.criancas }}</span>
+                        @if (form.value.criancas! > 0) {
+                          <small class="review-note">Taxa: R$ {{ taxaCriancaPorNoite }}/noite por criança (acima de 5 anos)</small>
+                        }
+                      </div>
+                    }
+                    @if ((form.value.pets || 0) > 0) {
+                      <div class="review-item">
+                        <span class="review-label">🐾 Pets</span>
+                        <span class="review-value">{{ form.value.pets }}</span>
+                        <small class="review-note">Taxa: R$ {{ taxaPetPorNoite }}/noite por pet</small>
+                      </div>
+                    }
+                    <div class="review-item highlight">
+                      <span class="review-label">Total de hóspedes</span>
+                      <span class="review-value-large">{{ totalHospedes }} pessoa{{ totalHospedes > 1 ? 's' : '' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hóspede principal -->
+                <div class="review-section">
+                  <h3 class="review-section-title">👤 Dados do hóspede principal</h3>
+                  <div class="review-section-content">
+                    <div class="review-item">
+                      <span class="review-label">Nome</span>
+                      <span class="review-value">{{ auth.currentUser()?.nome }}</span>
+                    </div>
+                    <div class="review-item">
+                      <span class="review-label">E-mail</span>
+                      <span class="review-value">{{ auth.currentUser()?.email }}</span>
+                    </div>
+                    @if (form.value.telefone) {
+                      <div class="review-item">
+                        <span class="review-label">Telefone</span>
+                        <span class="review-value">{{ form.value.telefone }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Hóspedes adicionais -->
+                @if (guestsArray().controls.length > 0) {
+                  <div class="review-section">
+                    <h3 class="review-section-title">👥 Hóspedes adicionais cadastrados</h3>
+                    <div class="review-section-content">
+                      @for (g of guestsArray().controls; track $index) {
+                        <div class="review-item guest-review-item">
+                          <span class="review-label">{{ $any(g).get('nome')?.value || 'Hóspede ' + ($index + 1) }}</span>
+                          <span class="review-value">
+                            {{ $any(g).get('tipo')?.value }}
+                            @if ($any(g).get('tipo')?.value === 'Criança' && $any(g).get('dataNascimento')?.value; as dob) {
+                              @if (getIdadeFromDataNascimento(dob) !== null) {
+                                — {{ getIdadeFromDataNascimento(dob) }} anos {{ getIdadeFromDataNascimento(dob)! < 5 ? '(sem taxa)' : '(taxa R$ ' + taxaCriancaPorNoite + '/noite)' }}
+                              }
+                            }
+                          </span>
+                          @if ($any(g).get('cpf')?.value) {
+                            <span class="review-note">CPF: {{ $any(g).get('cpf')?.value }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (form.value.observacoes) {
+                  <div class="review-section">
+                    <h3 class="review-section-title">📝 Observações</h3>
+                    <div class="review-section-content">
+                      <div class="review-item full-width">
+                        <span class="review-value">{{ form.value.observacoes }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Resumo Financeiro -->
+              <div class="financial-summary">
+                <h3>💰 Resumo Financeiro</h3>
+                <div class="financial-breakdown">
+                  <div class="financial-line">
+                    <span>Hospedagem ({{ noites }} {{ noites === 1 ? 'noite' : 'noites' }})</span>
+                    <span>R$ {{ noites * r.precoDiaria | number:'1.2-2' }}</span>
+                  </div>
+                  @if (spaAddOn(); as spa) {
+                    <div class="financial-line">
+                      <span>Spa: {{ spa.nome }}</span>
+                      <span>R$ {{ spa.preco | number:'1.2-2' }}</span>
+                    </div>
+                  }
+                  @if (criancasComTaxa > 0) {
+                    <div class="financial-line">
+                      <span>Taxa crianças acima de 5 anos ({{ criancasComTaxa }} × {{ noites }} noites)</span>
+                      <span>R$ {{ noites * criancasComTaxa * taxaCriancaPorNoite | number:'1.2-2' }}</span>
+                    </div>
+                  }
+                  @if ((form.value.pets || 0) > 0) {
+                    <div class="financial-line">
+                      <span>Taxa pets ({{ form.value.pets }} × {{ noites }} noites)</span>
+                      <span>R$ {{ noites * (form.value.pets || 0) * taxaPetPorNoite | number:'1.2-2' }}</span>
+                    </div>
+                  }
+                  <div class="financial-line total-line">
+                    <span><strong>Total a pagar</strong></span>
+                    <span class="total-amount">R$ {{ precoTotal | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pagamento -->
+              <div class="payment-section">
+                <h3>💳 Forma de pagamento</h3>
+                <div class="payment-methods">
+                  <label class="payment-method">
+                    <input type="radio" formControlName="metodoPagamento" value="CartaoCredito" />
+                    <div class="payment-card">
+                      <span class="payment-icon">💳</span>
+                      <div>
+                        <strong>Cartão de crédito</strong>
+                        <small>Pagamento imediato</small>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="payment-method">
+                    <input type="radio" formControlName="metodoPagamento" value="Pix" />
+                    <div class="payment-card">
+                      <span class="payment-icon">📱</span>
+                      <div>
+                        <strong>PIX</strong>
+                        <small>Pagamento instantâneo</small>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="payment-method">
+                    <input type="radio" formControlName="metodoPagamento" value="Boleto" />
+                    <div class="payment-card">
+                      <span class="payment-icon">🧾</span>
+                      <div>
+                        <strong>Boleto</strong>
+                        <small>Compensação em até 3 dias</small>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                @if (form.value.metodoPagamento === 'CartaoCredito') {
+                  <div class="card-form">
+                    <label>
+                      <span>Número do cartão</span>
+                      <input type="text" formControlName="tokenPagamento" placeholder="0000 0000 0000 0000" maxlength="19" />
+                    </label>
+                    <div class="form-row">
+                      <label>
+                        <span>Validade</span>
+                        <input type="text" placeholder="MM/AA" maxlength="5" />
+                      </label>
+                      <label>
+                        <span>CVV</span>
+                        <input type="text" placeholder="123" maxlength="3" />
+                      </label>
+                    </div>
+                    <label>
+                      <span>Nome no cartão</span>
+                      <input type="text" placeholder="Nome como está no cartão" />
+                    </label>
+                    <p class="payment-info">💡 Este é um ambiente de demonstração. Nenhum dado real será processado.</p>
+                  </div>
+                }
+
+                @if (form.value.metodoPagamento === 'Pix' || form.value.metodoPagamento === 'Boleto') {
+                  <div class="payment-info-box">
+                    <p>📋 O código de pagamento será gerado após a confirmação da reserva e enviado por email.</p>
+                  </div>
+                }
+              </div>
+
+              <div class="actions-large">
+                <button type="button" class="btn-secondary-large" (click)="voltarParaHospede()">← Alterar dados</button>
+                <button type="button" class="btn-primary-large" (click)="confirmarReserva()" [disabled]="submitting() || !form.value.metodoPagamento">
+                  {{ submitting() ? 'Processando...' : '✓ Confirmar e finalizar reserva' }}
+                </button>
+              </div>
+            </div>
+          </section>
+        }
+
+        @if (step() === 4) {
+          <section class="step-content success-content">
+            <div class="success-card">
+              <div class="success-icon">✓</div>
+              <h1>Reserva confirmada!</h1>
+              @if (reservationId()) {
+                <p class="reserva-num">Nº da reserva: <strong>#{{ reservationId() }}</strong></p>
+              }
+              <p>Sua reserva do Quarto {{ r.numero }} foi realizada com sucesso.</p>
+              <p class="success-detail">{{ formatarData(form.value.dataInicio!) }} — {{ formatarData(form.value.dataFim!) }}{{ spaAddOn() ? ' · Quarto + Spa' : '' }} · Total: R$ {{ precoTotal | number:'1.2-2' }}</p>
+              <p class="email-msg">Um e-mail de confirmação será enviado em breve.</p>
+              <a routerLink="/minhas-reservas" class="btn-primary">Ver minhas reservas</a>
+            </div>
+          </section>
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,181 @@
+<div class="auth-card">
+  <h1>Criar conta</h1>
+  <p class="subtitle">Cadastre-se para fazer reservas</p>
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+
+  <!-- Indicador de etapas -->
+  <div class="steps-indicator">
+    <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
+      <span class="step-number">1</span>
+      <span class="step-label">Dados essenciais</span>
+    </div>
+    <div class="step-line" [class.completed]="currentStep() > 1"></div>
+    <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
+      <span class="step-number">2</span>
+      <span class="step-label">Documento</span>
+    </div>
+    <div class="step-line" [class.completed]="currentStep() > 2"></div>
+    <div class="step" [class.active]="currentStep() >= 3">
+      <span class="step-number">3</span>
+      <span class="step-label">Preferências</span>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <!-- Etapa 1: Dados essenciais -->
+    @if (currentStep() === 1) {
+      <div class="form-step">
+        <h2>Dados essenciais</h2>
+        <label>
+          <span>Nome completo *</span>
+          <input type="text" formControlName="nome" placeholder="Seu nome completo" />
+          @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+            <small>Mínimo 2 caracteres</small>
+          }
+        </label>
+        <label>
+          <span>Email *</span>
+          <input type="email" formControlName="email" placeholder="seu@email.com" />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <small>Email inválido</small>
+          }
+        </label>
+        <label>
+          <span>Senha *</span>
+          <input type="password" formControlName="senha" placeholder="Mín. 6 caracteres" />
+          @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+            <small>Mínimo 6 caracteres</small>
+          }
+        </label>
+        <label>
+          <span>Confirmar senha *</span>
+          <input type="password" formControlName="confirmarSenha" placeholder="Digite a senha novamente" />
+          @if (form.hasError('passwordMismatch') && form.get('confirmarSenha')?.touched) {
+            <small>As senhas não coincidem</small>
+          }
+        </label>
+        <label>
+          <span>Telefone</span>
+          <input type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+        </label>
+        <div class="form-actions">
+          <button type="button" (click)="nextStep()" [disabled]="form.get('nome')?.invalid || form.get('email')?.invalid || form.get('senha')?.invalid || form.get('confirmarSenha')?.invalid">Continuar →</button>
+        </div>
+      </div>
+    }
+
+    <!-- Etapa 2: Documento -->
+    @if (currentStep() === 2) {
+      <div class="form-step">
+        <h2>Documento</h2>
+        <p class="step-description">Essas informações ajudam no check-in e exigências legais</p>
+        <label>
+          <span>CPF</span>
+          <input type="text" formControlName="cpf" placeholder="000.000.000-00" maxlength="14" />
+        </label>
+        <label>
+          <span>Data de nascimento</span>
+          <input type="date" formControlName="dataNascimento" />
+        </label>
+        <label>
+          <span>Nacionalidade</span>
+          <input type="text" formControlName="nacionalidade" placeholder="Ex: Brasileira" />
+        </label>
+        <div class="form-actions">
+          <button type="button" (click)="prevStep()" class="btn-secondary">← Voltar</button>
+          <button type="button" (click)="nextStep()">Continuar →</button>
+        </div>
+      </div>
+    }
+
+    <!-- Etapa 3: Preferências (opcional) -->
+    @if (currentStep() === 3) {
+      <div class="form-step">
+        <h2>Preferências de estadia</h2>
+        <p class="step-description">Essas informações são opcionais e nos ajudam a melhorar sua experiência</p>
+        
+        <div class="form-section">
+          <h3>Dados opcionais</h3>
+          <label>
+            <span>Endereço</span>
+            <input type="text" formControlName="endereco" placeholder="Rua, número" />
+          </label>
+          <div class="form-row">
+            <label>
+              <span>Cidade</span>
+              <input type="text" formControlName="cidade" placeholder="São Paulo" />
+            </label>
+            <label>
+              <span>País</span>
+              <input type="text" formControlName="pais" placeholder="Brasil" />
+            </label>
+          </div>
+          <label>
+            <span>Idioma preferido</span>
+            <select formControlName="idiomaPreferido">
+              <option value="">Selecione</option>
+              <option value="pt-BR">Português (Brasil)</option>
+              <option value="en-US">English</option>
+              <option value="es-ES">Español</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>Preferências do quarto</h3>
+          <label>
+            <span>Tipo de cama preferido</span>
+            <select formControlName="tipoCamaPreferido">
+              <option value="">Sem preferência</option>
+              <option value="King">King Size</option>
+              <option value="Queen">Queen Size</option>
+              <option value="Twin">Twin (Duas camas)</option>
+            </select>
+          </label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="andarAlto" />
+              <span>Prefiro andar alto</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="quartoSilencioso" />
+              <span>Quarto silencioso</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="naoFumante" />
+              <span>Quarto não fumante</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="acessibilidade" />
+              <span>Preciso de acessibilidade</span>
+            </label>
+          </div>
+          <label>
+            <span>Preferência alimentar</span>
+            <select formControlName="preferenciaAlimentar">
+              <option value="">Sem preferência</option>
+              <option value="Vegetariano">Vegetariano</option>
+              <option value="Vegano">Vegano</option>
+              <option value="Sem glúten">Sem glúten</option>
+              <option value="Sem lactose">Sem lactose</option>
+              <option value="Halal">Halal</option>
+              <option value="Kosher">Kosher</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="prevStep()" class="btn-secondary">← Voltar</button>
+          <button type="submit" [disabled]="loading">{{ loading ? 'Cadastrando...' : 'Finalizar cadastro' }}</button>
+        </div>
+      </div>
+    }
+  </form>
+
+  <p class="footer">
+    Já tem conta? <a routerLink="/login">Entrar</a>
+  </p>
+</div>

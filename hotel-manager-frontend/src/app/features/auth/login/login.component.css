@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 60px);
+  padding: 3rem 1rem;
+}
+
+.auth-card {
+  max-width: 420px;
+  margin: 2rem auto;
+  padding: 2.75rem;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,0.03);
+  border: 1px solid var(--color-border);
+}
+
+.auth-card h1 {
+  margin: 0 0 0.35rem;
+  font-size: 2rem;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.auth-card label span {
+  font-weight: 500;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.auth-card input {
+  padding: 0.8rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 1rem;
+  background: var(--color-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.auth-card .error {
+  background: rgba(196, 30, 58, 0.08);
+  color: var(--color-error);
+  padding: 0.8rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card button {
+  padding: 0.9rem 1.25rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all var(--transition-fast);
+}
+
+.auth-card button:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.auth-card button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-card .footer {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.auth-card .footer a {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.auth-card .footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-card small {
+  color: var(--color-error);
+  font-size: 0.85rem;
+}

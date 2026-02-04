@@ -1,0 +1,38 @@
+<div class="auth-card">
+  <h1>Entrar</h1>
+  <p class="subtitle">
+    @if (isAdminLogin()) {
+      Acesse o painel administrativo
+    } @else {
+      Acesse sua conta para fazer reservas
+    }
+  </p>
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      <span>Email</span>
+      <input type="email" formControlName="email" placeholder="seu@email.com" />
+      @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <small>Email inválido</small>
+      }
+    </label>
+    <label>
+      <span>Senha</span>
+      <input type="password" formControlName="senha" placeholder="••••••••" />
+      @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+        <small>Obrigatório</small>
+      }
+    </label>
+    <button type="submit" [disabled]="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
+  </form>
+
+  @if (!isAdminLogin()) {
+    <p class="footer">
+      Não tem conta? <a routerLink="/cadastro">Cadastre-se</a>
+    </p>
+  }
+</div>

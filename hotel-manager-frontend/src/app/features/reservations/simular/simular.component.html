@@ -1,0 +1,81 @@
+<div class="simular-page">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando...</p>
+    </div>
+  } @else {
+    @if (room(); as r) {
+      <div class="simular-container">
+        <a [routerLink]="['/quartos', r.id]" class="back-link">← Voltar ao quarto</a>
+
+        <div class="simulacao-header">
+          <h1>Simulação: Quarto + Spa</h1>
+          <p class="subtitle">Escolha o quarto e, se quiser, adicione um serviço de spa. Depois você pode seguir para a reserva e pagamento.</p>
+        </div>
+
+        <div class="simulacao-card room-summary">
+          <h2>Seu quarto</h2>
+          <div class="room-row">
+            @if (getRoomImageUrl(r.numero); as img) {
+              <img [src]="img" [alt]="'Quarto ' + r.numero" class="room-thumb" />
+            }
+            <div class="room-details">
+              <strong>Quarto {{ r.numero }}</strong> — {{ r.tipo }}
+              <p class="preco-noite">R$ {{ r.precoDiaria | number:'1.2-2' }} / noite</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="simulacao-card spa-choice">
+          <h2>Deseja adicionar Spa?</h2>
+          <p class="spa-desc">Escolha o tipo e o valor que preferir. O valor do spa é único (uma vez por reserva).</p>
+          <div class="spa-options">
+            <label class="spa-option" [class.selected]="selectedSpa() === null">
+              <input type="radio" name="spa" [checked]="selectedSpa() === null" (change)="selectSpa(null)" />
+              <span class="option-label">Sem spa — só hospedagem</span>
+            </label>
+            @for (spa of spaOptions; track spa.id) {
+              <label class="spa-option" [class.selected]="selectedSpa()?.id === spa.id">
+                <input type="radio" name="spa" [value]="spa.id" [checked]="selectedSpa()?.id === spa.id" (change)="selectSpa(spa)" />
+                <div class="option-content">
+                  <span class="option-name">{{ spa.nome }} · {{ spa.duracao }}</span>
+                  <span class="option-desc">{{ spa.descricao }}</span>
+                  <span class="option-price">R$ {{ spa.preco | number:'1.2-2' }}</span>
+                </div>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="simulacao-total">
+          <h3>Total da simulação (1 noite)</h3>
+          <div class="total-line">
+            <span>Quarto {{ r.numero }}</span>
+            <span>R$ {{ r.precoDiaria | number:'1.2-2' }}</span>
+          </div>
+          @if (selectedSpa(); as spa) {
+            <div class="total-line">
+              <span>Spa: {{ spa.nome }} ({{ spa.duracao }})</span>
+              <span>R$ {{ spa.preco | number:'1.2-2' }}</span>
+            </div>
+          }
+          <div class="total-line total-final">
+            <span>Total estimado</span>
+            <span>R$ {{ totalSimulacao() | number:'1.2-2' }}</span>
+          </div>
+          <p class="aviso">Valores reais serão calculados conforme as datas e noites escolhidas na reserva. O valor do spa é fixo por reserva.</p>
+        </div>
+
+        <div class="simulacao-actions">
+          <button type="button" class="btn-secondary" (click)="apenasQuarto()">
+            Reservar só o quarto
+          </button>
+          <button type="button" class="btn-primary" (click)="irParaReserva()">
+            Quero este pacote — ir para reserva e pagamento
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

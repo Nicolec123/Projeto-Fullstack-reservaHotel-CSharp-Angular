@@ -1,0 +1,38 @@
+<div class="container">
+  <h1>Minhas reservas</h1>
+  <a routerLink="/quartos" class="link">← Ver quartos</a>
+
+  @if (loading()) {
+    <p class="loading">Carregando...</p>
+  } @else {
+    <div class="list">
+      @for (r of reservations(); track r.id) {
+        <div class="card" [class.cancelada]="r.status === 'Cancelada'">
+          <div class="header">
+            <strong>Quarto {{ r.roomNumero }}</strong>
+            <span class="status" [class]="r.status.toLowerCase()">{{ r.status }}</span>
+          </div>
+          <p>{{ formatDate(r.dataInicio) }} — {{ formatDate(r.dataFim) }}</p>
+          @if (r.precoTotal != null) {
+            <p class="preco">Total: R$ {{ r.precoTotal | number:'1.2-2' }}</p>
+          }
+          @if (r.status === 'Confirmada') {
+            <button type="button" class="btn-cancel" (click)="cancel(r.id)">Cancelar reserva</button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (total() > pageSize) {
+      <div class="pagination">
+        <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
+        <span>Página {{ page() }} de {{ totalPages() }}</span>
+        <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
+      </div>
+    }
+  }
+
+  @if (!loading() && reservations().length === 0) {
+    <p class="empty">Você ainda não fez nenhuma reserva.</p>
+  }
+</div>

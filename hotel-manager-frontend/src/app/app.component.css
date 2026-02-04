@@ -1,0 +1,96 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 2rem;
+  flex-wrap: wrap;
+  background: rgba(26, 26, 26, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #FAF7F2;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.12);
+}
+
+.nav .brand {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.nav a {
+  color: rgba(250, 247, 242, 0.88);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.nav a:hover {
+  color: #FAF7F2;
+  background: rgba(255,255,255,0.06);
+}
+
+.nav a.active {
+  color: #FAF7F2;
+  background: rgba(255,255,255,0.08);
+}
+
+.nav a.active::after {
+  display: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.nav-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user {
+  font-size: 0.875rem;
+  color: rgba(250, 247, 242, 0.7);
+}
+
+.btn-logout {
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(250, 247, 242, 0.95);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btn-logout:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+  color: #FAF7F2;
+}
+
+main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: transparent;
+}

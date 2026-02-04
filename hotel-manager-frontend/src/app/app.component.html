@@ -1,0 +1,33 @@
+<div class="app-layout">
+  <nav class="nav">
+    <a routerLink="/" class="brand">Hotel & Spa</a>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Início</a>
+      <a routerLink="/quartos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Quartos</a>
+      <a routerLink="/sobre" routerLinkActive="active">Sobre</a>
+      <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
+      <a routerLink="/galeria" routerLinkActive="active">Galeria</a>
+      <a routerLink="/contato" routerLinkActive="active">Contato</a>
+      <a routerLink="/politicas" routerLinkActive="active">Políticas</a>
+    </div>
+    <div class="nav-auth">
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/minhas-reservas" routerLinkActive="active">Minhas reservas</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="active">Admin</a>
+        }
+        <span class="user">{{ auth.currentUser()?.nome }}</span>
+        <button type="button" class="btn-logout" (click)="auth.logout()">Sair</button>
+      } @else if (isAdminLoginFlow) {
+        <a routerLink="/quartos" class="back-nav">← Voltar</a>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Entrar</a>
+        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      }
+    </div>
+  </nav>
+  <main>
+    <router-outlet />
+  </main>
+  <app-footer></app-footer>
+</div>

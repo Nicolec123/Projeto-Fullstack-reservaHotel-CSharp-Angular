@@ -1,0 +1,125 @@
+<div class="home-page">
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>{{ hotel.nome }}</h1>
+      <p class="slogan">{{ hotel.slogan }}</p>
+      <app-search-bar></app-search-bar>
+    </div>
+  </section>
+
+  <!-- Avaliações dos clientes - carrossel -->
+  <section class="reviews-section">
+    <h2>O que nossos clientes dizem</h2>
+    <p class="reviews-subtitle">Avaliações reais de quem já se hospedou conosco</p>
+    <div class="carousel-wrapper">
+      <div class="carousel-track">
+        @for (r of reviews; track r.nome + r.data) {
+          <div class="review-card">
+            <div class="review-stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <span class="star" [class.filled]="star <= r.nota">★</span>
+              }
+            </div>
+            <p class="review-text">"{{ r.texto }}"</p>
+            <div class="review-author">
+              <img [src]="r.avatarUrl" [alt]="r.nome" class="review-avatar" />
+              <div>
+                <strong>{{ r.nome }}</strong>
+                <span class="review-date">{{ r.data }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="destaques">
+    <div class="destaques-header">
+      <h2>Por que nos escolher</h2>
+      <p class="destaques-subtitle">Uma experiência completa de hospitalidade e bem-estar</p>
+    </div>
+    <div class="destaques-grid">
+      @for (item of hotel.destaque; track item) {
+        <div class="destaque-item">
+          <span class="check">✓</span>
+          <span>{{ item }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Pilares do Spa -->
+  <section class="spa-pillars-section">
+    <div class="pillars-header">
+      <h2>Tratamentos exclusivos focados em 3 pilares</h2>
+      <p class="pillars-subtitle">Um verdadeiro refúgio urbano dedicado à saúde e ao bem-estar. Terapeutas experientes proporcionam experiências multi-sensoriais com ampla variedade de massagens e tratamentos.</p>
+    </div>
+    <div class="pillars-grid">
+      @for (pillar of spaPillars; track pillar.id) {
+        <div class="pillar-card" [style.--pillar-color]="pillar.cor">
+          <div class="pillar-icon">{{ pillar.icone }}</div>
+          <h3>{{ pillar.nome }}</h3>
+          <p class="pillar-desc">{{ pillar.descricao }}</p>
+          <ul class="pillar-tratamentos">
+            @for (tratamento of pillar.tratamentos; track tratamento) {
+              <li>{{ tratamento }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Hotel & Spa - pacotes e avaliações -->
+  <section class="spa-section">
+    <h2>Hotel &amp; Spa</h2>
+    <p class="spa-intro">Combine hospedagem com bem-estar. Nossos pacotes incluem quarto e experiências no spa com massagens, sauna e piscina térmica. O ambiente aconchegante foi feito para acalmar o corpo e a mente, com área externa de relaxamento com ofurôs, ducha e um deck com espreguiçadeiras.</p>
+    <div class="spa-packages">
+      @for (pkg of spaPackages; track pkg.id) {
+        <div class="spa-package-card">
+          <div class="spa-package-image">
+            <img [src]="pkg.imagem" [alt]="pkg.titulo" />
+            <span class="spa-package-badge">{{ pkg.duracao }}</span>
+          </div>
+          <div class="spa-package-body">
+            <h3>{{ pkg.titulo }}</h3>
+            <p class="spa-package-desc">{{ pkg.descricao }}</p>
+            <ul>
+              @for (item of pkg.itens; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+            <p class="spa-package-price">{{ pkg.precoDesde }}</p>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="spa-reviews">
+      <h3>Avaliações do Spa</h3>
+      <div class="spa-reviews-grid">
+        @for (sr of spaReviews; track sr.nome) {
+          <div class="spa-review-card">
+            <div class="spa-review-stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <span class="star" [class.filled]="star <= sr.nota">★</span>
+              }
+            </div>
+            <p>"{{ sr.texto }}"</p>
+            <div class="spa-review-author">
+              <img [src]="sr.avatarUrl" [alt]="sr.nome" />
+              <span><strong>{{ sr.nome }}</strong> · {{ sr.data }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Pronto para sua próxima estadia?</h2>
+    <p>Conheça nossos quartos e faça sua reserva com facilidade.</p>
+    <a routerLink="/quartos" class="btn-cta">Ver quartos disponíveis</a>
+  </section>
+</div>

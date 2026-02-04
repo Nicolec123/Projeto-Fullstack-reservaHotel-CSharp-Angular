@@ -1,0 +1,238 @@
+.simular-page {
+  min-height: calc(100vh - 60px);
+  padding: 2.5rem 1.5rem;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.simular-container {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.simulacao-header {
+  margin-bottom: 2rem;
+}
+
+.simulacao-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: var(--color-text);
+}
+
+.simulacao-header .subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.simulacao-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.simulacao-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  color: var(--color-text);
+}
+
+.room-summary .room-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.room-thumb {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.room-details .preco-noite {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.spa-choice .spa-desc {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.spa-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.spa-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.spa-option:hover {
+  border-color: rgba(166, 123, 91, 0.4);
+  background: var(--color-accent-soft);
+}
+
+.spa-option.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.spa-option input {
+  margin-top: 0.25rem;
+}
+
+.option-label {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.option-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.option-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.option-price {
+  font-size: 0.95rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.simulacao-total {
+  background: linear-gradient(135deg, var(--color-accent-soft) 0%, rgba(166, 123, 91, 0.06) 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(166, 123, 91, 0.2);
+}
+
+.simulacao-total h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.total-line.total-final {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.simulacao-total .aviso {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.simulacao-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.simulacao-actions .btn-secondary {
+  padding: 0.9rem 1.5rem;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.simulacao-actions .btn-secondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.simulacao-actions .btn-primary {
+  padding: 0.9rem 1.75rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.simulacao-actions .btn-primary:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}

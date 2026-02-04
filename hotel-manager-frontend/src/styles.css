@@ -1,0 +1,165 @@
+:root {
+  --color-bg: #F8F6F3;
+  --color-bg-card: #FFFFFF;
+  --color-text: #1A1A1A;
+  --color-text-muted: #5C5C5C;
+  --color-accent: #A67B5B;
+  --color-accent-hover: #8B6849;
+  --color-accent-soft: rgba(166, 123, 91, 0.12);
+  --color-whatsapp: #25D366;
+  --color-whatsapp-hover: #20BD5A;
+  --color-border: #E8E4DF;
+  --color-error: #C41E3A;
+  --color-success: #2D6A4F;
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --shadow-xs: 0 1px 2px rgba(26, 26, 26, 0.04);
+  --shadow-sm: 0 2px 12px rgba(26, 26, 26, 0.06);
+  --shadow-md: 0 8px 30px rgba(26, 26, 26, 0.08);
+  --shadow-lg: 0 16px 48px rgba(26, 26, 26, 0.1);
+  --shadow-xl: 0 24px 64px rgba(26, 26, 26, 0.12);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(166, 123, 91, 0.04) 0%, transparent 50%);
+  z-index: 0;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+input, select, button, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button, a.btn, .btn {
+  transition: all var(--transition-fast);
+}
+
+.form-card {
+  background: var(--color-bg-card);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.form-card form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.form-card input,
+.form-card select {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-card input:focus,
+.form-card select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.form-card .error {
+  color: var(--color-error);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-card button {
+  padding: 0.65rem 1.25rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.form-card button:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Flatpickr - tema personalizado */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+}
+.flatpickr-day:hover {
+  background: var(--color-accent-soft) !important;
+  border-color: var(--color-accent) !important;
+}
+.flatpickr-months .flatpickr-month {
+  background: var(--color-accent) !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+span.flatpickr-weekday {
+  color: rgba(255,255,255,0.9) !important;
+}
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--color-accent) !important;
+}
+.flatpickr-input[readonly] {
+  cursor: pointer;
+  background: var(--color-bg) !important;
+}

@@ -1,0 +1,109 @@
+<div class="service-detail-page">
+  @if (service(); as s) {
+    <div class="detail-container">
+      <a routerLink="/servicos" class="back-link">← Voltar aos serviços</a>
+
+      <header class="detail-header">
+        <div class="detail-icon">{{ s.icon }}</div>
+        <h1>{{ s.titulo }}</h1>
+        <p class="detail-subtitle">{{ s.descricaoCurta }}</p>
+      </header>
+
+      <!-- Galeria de imagens -->
+      @if (s.imagens.length > 0) {
+        <div class="gallery-section">
+          <div class="gallery-main">
+            <img [src]="s.imagens[currentImageIndex()]" [alt]="s.titulo" />
+            @if (s.imagens.length > 1) {
+              <button type="button" class="gallery-btn prev" (click)="prevImage()" aria-label="Imagem anterior">‹</button>
+              <button type="button" class="gallery-btn next" (click)="nextImage()" aria-label="Próxima imagem">›</button>
+              <div class="gallery-dots">
+                @for (img of s.imagens; track $index) {
+                  <button type="button" class="dot" [class.active]="currentImageIndex() === $index" (click)="goToImage($index)"></button>
+                }
+              </div>
+            }
+          </div>
+          @if (s.imagens.length > 1) {
+            <div class="gallery-thumbnails">
+              @for (img of s.imagens; track $index) {
+                <button type="button" class="thumbnail" [class.active]="currentImageIndex() === $index" (click)="goToImage($index)">
+                  <img [src]="img" [alt]="s.titulo + ' - imagem ' + ($index + 1)" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Descrição completa -->
+      <section class="description-section">
+        <h2>Sobre o serviço</h2>
+        <p class="full-description">{{ s.descricaoCompleta }}</p>
+      </section>
+
+      <!-- Informações práticas -->
+      <div class="info-grid">
+        @if (s.horario) {
+          <div class="info-card">
+            <h3>⏰ Horário</h3>
+            <p>{{ s.horario }}</p>
+          </div>
+        }
+        @if (s.localizacao) {
+          <div class="info-card">
+            <h3>📍 Localização</h3>
+            <p>{{ s.localizacao }}</p>
+          </div>
+        }
+        @if (s.capacidade) {
+          <div class="info-card">
+            <h3>👥 Capacidade</h3>
+            <p>{{ s.capacidade }}</p>
+          </div>
+        }
+        @if (s.preco) {
+          <div class="info-card">
+            <h3>💰 Preço</h3>
+            <p>{{ s.preco }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Itens inclusos -->
+      @if (s.itensInclusos && s.itensInclusos.length > 0) {
+        <section class="included-section">
+          <h2>O que está incluído</h2>
+          <ul class="included-list">
+            @for (item of s.itensInclusos; track item) {
+              <li>
+                <span class="check-icon">✓</span>
+                <span>{{ item }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- Informações adicionais -->
+      @if (s.informacoesAdicionais && s.informacoesAdicionais.length > 0) {
+        <section class="additional-section">
+          <h2>Informações importantes</h2>
+          <ul class="additional-list">
+            @for (info of s.informacoesAdicionais; track info) {
+              <li>{{ info }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- Contato -->
+      @if (s.contato) {
+        <section class="contact-section">
+          <h2>Entre em contato</h2>
+          <p class="contact-info">{{ s.contato }}</p>
+        </section>
+      }
+    </div>
+  }
+</div>

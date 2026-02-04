@@ -1,0 +1,138 @@
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.container h1 {
+  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  color: var(--color-text);
+}
+
+.link {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card.cancelada {
+  opacity: 0.75;
+  background: #F8F8F8;
+}
+
+.card .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.card .header strong {
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.card .status {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.card .status.confirmada {
+  background: rgba(5, 150, 105, 0.15);
+  color: var(--color-success);
+}
+
+.card .status.cancelada {
+  background: rgba(185, 28, 28, 0.12);
+  color: var(--color-error);
+}
+
+.card p {
+  margin: 0.25rem 0;
+  color: var(--color-text-muted);
+}
+
+.card .preco {
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0.5rem 0 !important;
+}
+
+.btn-cancel {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--color-error);
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: rgba(185, 28, 28, 0.08);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination button {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading, .empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 3rem;
+}

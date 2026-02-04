@@ -1,0 +1,23 @@
+<div class="search-bar" [class.compact]="compact()">
+  <div class="search-field">
+    <span class="label">Destino</span>
+    <input type="text" value="Hotel & Spa Vista Serena" readonly />
+  </div>
+  <div class="search-field">
+    <span class="label">Check-in</span>
+    <input type="date" [(ngModel)]="dataInicio" />
+  </div>
+  <div class="search-field">
+    <span class="label">Check-out</span>
+    <input type="date" [(ngModel)]="dataFim" />
+  </div>
+  <div class="search-field">
+    <span class="label">Hóspedes</span>
+    <input type="number" [(ngModel)]="hospedes" min="1" max="10" />
+  </div>
+  <div class="search-field">
+    <span class="label">Quartos</span>
+    <input type="number" [(ngModel)]="quartos" min="1" max="5" />
+  </div>
+  <button type="button" class="btn-buscar" (click)="buscar()">Buscar quartos</button>
+</div>

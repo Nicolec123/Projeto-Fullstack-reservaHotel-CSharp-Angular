@@ -1,0 +1,70 @@
+<div class="page-container">
+  <a routerLink="/" class="back">← Voltar</a>
+  <h1>Contato</h1>
+  <p class="subtitle">Estamos à disposição para ajudá-lo</p>
+
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="info-item">
+        <span class="icon">📍</span>
+        <div>
+          <strong>Endereço</strong>
+          <p>{{ hotel.endereco }}<br>{{ hotel.cidade }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="icon">📞</span>
+        <div>
+          <strong>Telefone</strong>
+          <p>{{ hotel.telefone }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="icon">✉️</span>
+        <div>
+          <strong>E-mail</strong>
+          <p>{{ hotel.email }}</p>
+        </div>
+      </div>
+      <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn-whatsapp">💬 WhatsApp</a>
+    </div>
+    <div class="contact-form">
+      @if (enviado) {
+        <div class="success-msg">Mensagem enviada! Entraremos em contato em breve.</div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <label>
+            <span>Nome</span>
+            <input type="text" formControlName="nome" />
+          </label>
+          <label>
+            <span>E-mail</span>
+            <input type="email" formControlName="email" />
+          </label>
+          <label>
+            <span>Assunto</span>
+            <input type="text" formControlName="assunto" />
+          </label>
+          <label>
+            <span>Mensagem</span>
+            <textarea formControlName="mensagem" rows="4"></textarea>
+          </label>
+          <button type="submit" [disabled]="form.invalid">Enviar</button>
+        </form>
+      }
+    </div>
+  </div>
+
+  <div class="map-section">
+    <h2>Localização</h2>
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1974878984444!2d-46.653789!3d-23.5515497!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce582c4835016d%3A0x929f3234d50e7d!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1234567890"
+      width="100%"
+      height="300"
+      style="border:0; border-radius: 12px;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Localização do hotel"></iframe>
+  </div>
+</div>
