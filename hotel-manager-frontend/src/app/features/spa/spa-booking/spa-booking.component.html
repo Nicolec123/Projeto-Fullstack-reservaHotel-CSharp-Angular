@@ -1,0 +1,455 @@
+<div class="spa-booking-page">
+  <div class="booking-container">
+    <a routerLink="/sobre" class="back-link">← Voltar</a>
+
+    <div class="steps-indicator">
+      <div class="step-item" [class.active]="step() >= 1" [class.done]="step() > 1">
+        <span class="step-num">1</span>
+        <span class="step-label">Pacote</span>
+      </div>
+      <div class="step-line" [class.done]="step() > 1"></div>
+      <div class="step-item" [class.active]="step() >= 2" [class.done]="step() > 2">
+        <span class="step-num">2</span>
+        <span class="step-label">Dados</span>
+      </div>
+      <div class="step-line" [class.done]="step() > 2"></div>
+      <div class="step-item" [class.active]="step() >= 3" [class.done]="step() >= 4">
+        <span class="step-num">3</span>
+        <span class="step-label">Confirmação</span>
+      </div>
+    </div>
+
+    @if (step() === 1) {
+      <!-- Passo 1: Escolher Pacote -->
+      <section class="step-content">
+        <h1>Escolha seu Pacote de Spa</h1>
+        <p class="subtitle">Selecione a experiência perfeita para você</p>
+
+        <div class="packages-grid">
+          @for (pkg of packages; track pkg.id) {
+            <div class="package-card" [class.popular]="pkg.popular" (click)="selectPackage(pkg)">
+              @if (pkg.popular) {
+                <div class="popular-badge">Mais Popular</div>
+              }
+              <div class="package-image">
+                <img [src]="pkg.imagem" [alt]="pkg.nome" />
+              </div>
+              <div class="package-content">
+                <h3>{{ pkg.nome }}</h3>
+                <p class="package-desc">{{ pkg.descricao }}</p>
+                <div class="package-details">
+                  <span class="detail-item">⏱️ {{ pkg.duracao }}</span>
+                  <span class="detail-item">👥 {{ pkg.pessoasIncluidas }} pessoa{{ pkg.pessoasIncluidas > 1 ? 's' : '' }}</span>
+                </div>
+                <ul class="package-items">
+                  @for (item of pkg.itensInclusos; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+                <div class="package-price">
+                  <span class="price-label">A partir de</span>
+                  <span class="price-value">{{ formatarPreco(pkg.precoBase) }}</span>
+                  @if (pkg.tipo === 'familia' && pkg.precoPorPessoaExtra) {
+                    <span class="price-extra">+ {{ formatarPreco(pkg.precoPorPessoaExtra) }} por pessoa extra</span>
+                  }
+                </div>
+                <button type="button" class="btn-select">Selecionar</button>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (step() === 2) {
+      <!-- Passo 2: Dados e Horário -->
+      <section class="step-content">
+        @if (selectedPackageData(); as pkg) {
+          <div class="selected-package-summary">
+            <h2>Pacote Selecionado: {{ pkg.nome }}</h2>
+            <p>{{ formatarPreco(precoTotal()) }}</p>
+          </div>
+        }
+
+        <div class="form-card">
+          <h2>Dados do Agendamento</h2>
+          @if (error()) {
+            <div class="error">{{ error() }}</div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="avancarParaRevisao()">
+            @if (selectedPackageData(); as pkg) {
+              <div class="form-section">
+                <h3>Informações do Pacote</h3>
+                
+                @if (pkg.tipo === 'individual') {
+                  <!-- Individual: escolher se é para você ou outro -->
+                  <div class="form-row">
+                    <label class="radio-group-label">
+                      <span>O agendamento é para: *</span>
+                      <div class="radio-group">
+                        <label class="radio-option">
+                          <input 
+                            type="radio" 
+                            name="individualPara" 
+                            [value]="'eu'"
+                            [checked]="individualPara() === 'eu'"
+                            (change)="onIndividualParaChange('eu')"
+                          />
+                          <span>Para mim</span>
+                        </label>
+                        <label class="radio-option">
+                          <input 
+                            type="radio" 
+                            name="individualPara" 
+                            [value]="'outro'"
+                            [checked]="individualPara() === 'outro'"
+                            (change)="onIndividualParaChange('outro')"
+                          />
+                          <span>Para outra pessoa</span>
+                        </label>
+                      </div>
+                    </label>
+                  </div>
+                } @else if (pkg.tipo === 'casal') {
+                  <!-- Casal: sempre 2 pessoas, sem input de quantidade -->
+                  <div class="info-box">
+                    <p><strong>Pacote Casal:</strong> Este pacote é para exatamente 2 pessoas.</p>
+                  </div>
+                } @else if (pkg.tipo === 'familia') {
+                  <!-- Família: pode adicionar pessoas extras -->
+                  <div class="form-row">
+                    <label>
+                      <span>Número de Pessoas *</span>
+                      <input 
+                        type="number" 
+                        [value]="numPessoas()"
+                        readonly
+                        [min]="pkg.pessoasIncluidas"
+                        [max]="pkg.pessoasMaximas || 10"
+                        style="background: var(--color-bg); cursor: not-allowed;"
+                      />
+                      <small>
+                        Mínimo: {{ pkg.pessoasIncluidas }} pessoas
+                        @if (pkg.pessoasMaximas) {
+                          | Máximo: {{ pkg.pessoasMaximas }} pessoas
+                        }
+                        <br>
+                        <em>Use o botão abaixo para adicionar pessoas extras</em>
+                      </small>
+                    </label>
+                  </div>
+                  <div class="form-row">
+                    <button 
+                      type="button" 
+                      class="btn-add-person"
+                      (click)="adicionarPessoaFamilia()"
+                      [disabled]="pkg.pessoasMaximas && numPessoas() >= pkg.pessoasMaximas"
+                    >
+                      + Adicionar Pessoa
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="form-section">
+              <h3>Data e Horário</h3>
+              <div class="form-row">
+                <label>
+                  <span>Data do Agendamento *</span>
+                  <input 
+                    type="date" 
+                    formControlName="dataAgendamento"
+                    [min]="getMinDate()"
+                    [max]="getMaxDate()"
+                  />
+                  <small>Horário de funcionamento: Segunda a Domingo, das 8h às 22h</small>
+                </label>
+                <label>
+                  <span>Horário *</span>
+                  <select formControlName="horario">
+                    <option value="">Selecione um horário</option>
+                    @for (horario of horariosDisponiveis; track horario) {
+                      <option [value]="horario">{{ horario }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-section">
+              @if (selectedPackageData(); as pkg) {
+                @if (pkg.tipo === 'individual' && individualPara() === 'eu') {
+                  <!-- Individual para você: dados de contato (quem vai usar o serviço) -->
+                  <h3>Dados de Contato</h3>
+                } @else if (pkg.tipo === 'individual' && individualPara() === 'outro') {
+                  <!-- Individual para outro: dados de quem está fazendo o agendamento -->
+                  <h3>Dados de Quem Está Fazendo o Agendamento</h3>
+                } @else {
+                  <!-- Casal/Família: dados de quem está fazendo o agendamento -->
+                  <h3>Dados de Quem Está Fazendo o Agendamento</h3>
+                }
+              } @else {
+                <h3>Dados de Contato</h3>
+              }
+              
+              <div class="form-row">
+                <label>
+                  <span>Nome Completo *</span>
+                  <input type="text" formControlName="nome" placeholder="Nome completo" />
+                </label>
+                <label>
+                  <span>E-mail *</span>
+                  <input type="email" formControlName="email" placeholder="seu@email.com" />
+                </label>
+                <label>
+                  <span>Telefone *</span>
+                  <input type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+                </label>
+              </div>
+            </div>
+
+            <!-- Dados das outras pessoas (casal/família/individual outro) -->
+            @if (outrasPessoasArray.length > 0) {
+              <div class="form-section">
+                @if (selectedPackageData(); as pkg) {
+                  @if (pkg.tipo === 'casal') {
+                    <h3>Dados da Segunda Pessoa</h3>
+                  } @else if (pkg.tipo === 'familia') {
+                    <h3>Dados das Outras Pessoas</h3>
+                  } @else if (pkg.tipo === 'individual') {
+                    <h3>Dados da Pessoa que Utilizará o Serviço</h3>
+                  }
+                }
+                
+                @for (pessoaGroup of outrasPessoasArray.controls; track $index) {
+                  <div class="person-form-group">
+                    @if (selectedPackageData(); as pkg) {
+                      @if (pkg.tipo === 'familia') {
+                        <div class="person-header">
+                          <h4>Pessoa {{ $index + 2 }}</h4>
+                          @if (outrasPessoasArray.length > pkg.pessoasIncluidas - 1) {
+                            <button 
+                              type="button" 
+                              class="btn-remove-person"
+                              (click)="removerPessoa($index)"
+                            >
+                              Remover
+                            </button>
+                          }
+                        </div>
+                      }
+                    }
+                    
+                    <div [formGroup]="getPessoaGroup($index)" class="person-form-fields">
+                      <div class="form-row">
+                        <label>
+                          <span>Nome Completo *</span>
+                          <input type="text" formControlName="nome" placeholder="Nome completo" />
+                        </label>
+                        <label>
+                          <span>E-mail *</span>
+                          <input type="email" formControlName="email" placeholder="email@exemplo.com" />
+                        </label>
+                        <label>
+                          <span>Telefone *</span>
+                          <input type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="form-section">
+              <h3>Observações</h3>
+              <div class="form-row">
+                <label>
+                  <span>Observações (opcional)</span>
+                  <textarea formControlName="observacoes" rows="3" placeholder="Alguma observação especial?"></textarea>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="voltarParaPacotes()">← Voltar</button>
+              <button type="submit" class="btn-primary">Continuar →</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    }
+
+    @if (step() === 3) {
+      <!-- Passo 3: Revisão e Pagamento -->
+      <section class="step-content">
+        <h2>Revisão do Agendamento</h2>
+
+        @if (selectedPackageData(); as pkg) {
+          <div class="review-card">
+            <h3>Resumo do Agendamento</h3>
+            
+            <div class="review-section">
+              <h4>Informações do Pacote</h4>
+              <div class="review-item">
+                <span class="review-label">Pacote</span>
+                <span class="review-value">{{ pkg.nome }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Duração</span>
+                <span class="review-value">{{ pkg.duracao }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Número de Pessoas</span>
+                <span class="review-value">{{ numPessoas() }} pessoa{{ numPessoas() > 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <h4>Data e Horário</h4>
+              <div class="review-item">
+                <span class="review-label">Data do Agendamento</span>
+                <span class="review-value">{{ form.value.dataAgendamento ? formatarData(form.value.dataAgendamento) : 'Não informado' }}</span>
+                <small>Horário de funcionamento: Segunda a Domingo, das 8h às 22h</small>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Horário</span>
+                <span class="review-value">{{ form.value.horario || 'Não informado' }}</span>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <h4>Dados das Pessoas</h4>
+              
+              <!-- Primeira pessoa -->
+              <div class="person-review">
+                <div class="person-review-header">
+                  <strong>
+                    @if (pkg.tipo === 'individual' && individualPara() === 'eu') {
+                      Pessoa que utilizará o serviço (você)
+                    } @else if (pkg.tipo === 'individual' && individualPara() === 'outro') {
+                      Dados de Quem Está Fazendo o Agendamento
+                    } @else if (pkg.tipo === 'casal' || pkg.tipo === 'familia') {
+                      Pessoa 1 (Quem está fazendo o agendamento)
+                    } @else {
+                      Dados de Contato
+                    }
+                  </strong>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Nome:</span>
+                  <span class="review-value">{{ form.value.nome || 'Não informado' }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">E-mail:</span>
+                  <span class="review-value">{{ form.value.email || 'Não informado' }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Telefone:</span>
+                  <span class="review-value">{{ form.value.telefone || 'Não informado' }}</span>
+                </div>
+              </div>
+
+              <!-- Outras pessoas -->
+              @for (pessoaGroup of outrasPessoasArray.controls; track $index) {
+                <div class="person-review">
+                  <div class="person-review-header">
+                    <strong>
+                      @if (pkg.tipo === 'casal') {
+                        Pessoa 2
+                      } @else if (pkg.tipo === 'familia') {
+                        Pessoa {{ $index + 2 }}
+                      } @else {
+                        Pessoa que utilizará o serviço
+                      }
+                    </strong>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Nome:</span>
+                    <span class="review-value">{{ getPessoaValue($index, 'nome') }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">E-mail:</span>
+                    <span class="review-value">{{ getPessoaValue($index, 'email') }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Telefone:</span>
+                    <span class="review-value">{{ getPessoaValue($index, 'telefone') }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (form.value.observacoes) {
+              <div class="review-section">
+                <h4>Observações</h4>
+                <p class="review-observacoes">{{ form.value.observacoes }}</p>
+              </div>
+            }
+
+            <div class="review-total">
+              <span class="total-label">Total:</span>
+              <span class="total-value">{{ formatarPreco(precoTotal()) }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="form-card">
+          <h3>Método de Pagamento</h3>
+          <p class="payment-note">O pagamento será processado após a confirmação do agendamento.</p>
+          <div class="payment-options">
+            <label class="payment-option">
+              <input type="radio" formControlName="metodoPagamento" value="pix" />
+              <span>PIX</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" formControlName="metodoPagamento" value="cartaocredito" />
+              <span>Cartão de Crédito</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" formControlName="metodoPagamento" value="boleto" />
+              <span>Boleto</span>
+            </label>
+          </div>
+
+          @if (error()) {
+            <div class="error">{{ error() }}</div>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="voltarParaDados()">Voltar</button>
+            <button 
+              type="button" 
+              class="btn-primary" 
+              (click)="confirmarAgendamento()"
+              [disabled]="submitting() || !form.value.metodoPagamento"
+            >
+              @if (submitting()) {
+                Processando...
+              } @else {
+                Confirmar Agendamento
+              }
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (step() === 4) {
+      <!-- Passo 4: Sucesso -->
+      <section class="step-content success-content">
+        <div class="success-icon">✓</div>
+        <h2>Agendamento Confirmado!</h2>
+        <p class="success-message">
+          Seu agendamento foi realizado com sucesso. Você receberá um e-mail de confirmação em breve.
+        </p>
+        <div class="success-actions">
+          <button type="button" class="btn-primary" (click)="router.navigate(['/'])">Voltar ao Início</button>
+          <button type="button" class="btn-secondary" (click)="router.navigate(['/minhas-reservas'])">Ver Meus Agendamentos</button>
+        </div>
+      </section>
+    }
+  </div>
+</div>

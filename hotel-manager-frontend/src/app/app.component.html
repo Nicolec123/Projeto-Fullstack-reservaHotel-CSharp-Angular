@@ -1,19 +1,23 @@
 <div class="app-layout">
-  <nav class="nav">
+  <nav class="nav" [class.nav-admin]="isAdminRoute()">
     <a routerLink="/" class="brand">Hotel & Spa</a>
-    <div class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Início</a>
-      <a routerLink="/quartos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Quartos</a>
-      <a routerLink="/sobre" routerLinkActive="active">Sobre</a>
-      <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
-      <a routerLink="/galeria" routerLinkActive="active">Galeria</a>
-      <a routerLink="/contato" routerLinkActive="active">Contato</a>
-      <a routerLink="/politicas" routerLinkActive="active">Políticas</a>
-    </div>
+    @if (!isAdminRoute()) {
+      <div class="nav-links">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Início</a>
+        <a routerLink="/quartos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Quartos</a>
+        <a routerLink="/sobre" routerLinkActive="active">Sobre</a>
+        <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
+        <a routerLink="/galeria" routerLinkActive="active">Galeria</a>
+        <a routerLink="/contato" routerLinkActive="active">Contato</a>
+        <a routerLink="/politicas" routerLinkActive="active">Políticas</a>
+      </div>
+    }
     <div class="nav-auth">
       @if (auth.isLoggedIn()) {
-        <a routerLink="/minhas-reservas" routerLinkActive="active">Minhas reservas</a>
-        @if (auth.isAdmin()) {
+        @if (auth.isHospede()) {
+          <a routerLink="/minhas-reservas" routerLinkActive="active">Minhas reservas</a>
+        }
+        @if (auth.isStaff()) {
           <a routerLink="/admin" routerLinkActive="active">Admin</a>
         }
         <span class="user">{{ auth.currentUser()?.nome }}</span>
@@ -29,5 +33,7 @@
   <main>
     <router-outlet />
   </main>
-  <app-footer></app-footer>
+  @if (!isAdminRoute()) {
+    <app-footer></app-footer>
+  }
 </div>

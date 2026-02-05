@@ -4,6 +4,7 @@
   min-height: 100vh;
 }
 
+/* Navbar padrão: usuário comum / hóspede — cor preta, menu completo */
 .nav {
   position: sticky;
   top: 0;
@@ -26,6 +27,13 @@
   font-weight: 600;
   margin-right: 0.5rem;
   letter-spacing: -0.02em;
+  color: #FAF7F2;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .nav a {
@@ -50,12 +58,6 @@
 
 .nav a.active::after {
   display: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 0.25rem;
-  flex-wrap: wrap;
 }
 
 .nav-auth {
@@ -86,6 +88,55 @@
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.25);
   color: #FAF7F2;
+}
+
+.back-nav {
+  color: rgba(250, 247, 242, 0.8);
+}
+
+.back-nav:hover {
+  color: #FAF7F2;
+}
+
+/* Navbar no painel admin: azul, sem menu (só logo + auth) */
+.nav.nav-admin {
+  background: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nav.nav-admin .brand {
+  color: #fff;
+}
+
+.nav.nav-admin a {
+  color: #cbd5e1;
+}
+
+.nav.nav-admin a:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav.nav-admin a.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav.nav-admin .user {
+  color: #94a3b8;
+}
+
+.nav.nav-admin .btn-logout {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+}
+
+.nav.nav-admin .btn-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
 }
 
 main {

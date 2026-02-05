@@ -328,3 +328,4 @@ C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\ne
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\HotelManager.API.pdb
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\HotelManager.API.genruntimeconfig.cache
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\ref\HotelManager.API.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\HotelManager.API.sourcelink.json

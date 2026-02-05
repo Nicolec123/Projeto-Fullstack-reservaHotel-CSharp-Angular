@@ -30,6 +30,13 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<User> UpdateAsync(User user, CancellationToken ct = default)
+    {
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync(ct);
+        return user;
+    }
+
     public async Task<List<User>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
     {
         return await _db.Users

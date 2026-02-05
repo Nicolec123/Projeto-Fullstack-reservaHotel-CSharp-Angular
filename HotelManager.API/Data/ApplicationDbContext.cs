@@ -9,6 +9,7 @@ public class ApplicationDbContext : DbContext
         : base(options) { }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Guest> Guests => Set<Guest>();
@@ -18,6 +19,13 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>(e =>
         {
             e.HasIndex(u => u.Email).IsUnique();
+        });
+
+        modelBuilder.Entity<Session>(e =>
+        {
+            e.HasIndex(s => s.SessionId).IsUnique();
+            e.HasIndex(s => new { s.UserId, s.ExpiresAt });
+            e.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Room>(e =>

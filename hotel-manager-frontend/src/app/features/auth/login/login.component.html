@@ -27,6 +27,12 @@
         <small>Obrigatório</small>
       }
     </label>
+    @if (!isAdminLogin()) {
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="lembrarDeMim" />
+        <span>Lembrar de mim (sessão longa)</span>
+      </label>
+    }
     <button type="submit" [disabled]="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
   </form>
 

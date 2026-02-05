@@ -2,13 +2,31 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using HotelManager.API.Data;
 using HotelManager.API.Auth;
+using HotelManager.API.Middleware;
 using HotelManager.API.Models;
 using HotelManager.API.Repositories;
 using HotelManager.API.Services;
 
+// Serilog: logs estruturados (console + arquivo)
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentName()
+    .Enrich.WithMachineName()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/hotelmanager-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -51,6 +69,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -67,6 +86,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseSerilogRequestLogging(options =>
+{
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("UserId", httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "(anon)");
+    };
+});
+app.UseMiddleware<AuditMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -75,9 +102,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.EnsureCreatedAsync();
+    await EnsureJwtSchemaAsync(db, connectionString);
     await SeedAdminIfNeeded(db);
     await SeedTestUserIfNeeded(db);
     await SeedRoomsIfNeeded(db);
+    var sessionRepo = scope.ServiceProvider.GetRequiredService<ISessionRepository>();
+    await sessionRepo.DeleteExpiredAsync();
 }
 
 app.Run();
@@ -124,3 +154,30 @@ static async Task SeedRoomsIfNeeded(ApplicationDbContext db)
     db.Rooms.AddRange(rooms);
     await db.SaveChangesAsync();
 }
+
+static async Task EnsureJwtSchemaAsync(ApplicationDbContext db, string connectionString)
+{
+    if (!connectionString.Contains("Data Source=") || connectionString.Contains("Server="))
+        return;
+    try
+    {
+        await db.Database.ExecuteSqlRawAsync(
+            "CREATE TABLE IF NOT EXISTS \"Sessions\" (\"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"SessionId\" TEXT NOT NULL, \"UserId\" INTEGER NOT NULL, \"RefreshTokenHash\" TEXT NOT NULL, \"Ip\" TEXT, \"Device\" TEXT, \"ExpiresAt\" TEXT NOT NULL, \"CreatedAt\" TEXT NOT NULL, FOREIGN KEY (\"UserId\") REFERENCES \"Users\" (\"Id\") ON DELETE CASCADE);");
+        await db.Database.ExecuteSqlRawAsync("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Sessions_SessionId\" ON \"Sessions\" (\"SessionId\");");
+    }
+    catch { /* tabela já existe ou outro motivo */ }
+
+    foreach (var (_, sql) in new[] {
+        ("Ativo", "ALTER TABLE \"Users\" ADD COLUMN \"Ativo\" INTEGER NOT NULL DEFAULT 1"),
+        ("UltimoLogin", "ALTER TABLE \"Users\" ADD COLUMN \"UltimoLogin\" TEXT"),
+        ("TwoFactorEnabled", "ALTER TABLE \"Users\" ADD COLUMN \"TwoFactorEnabled\" INTEGER NOT NULL DEFAULT 0"),
+        ("HotelId", "ALTER TABLE \"Users\" ADD COLUMN \"HotelId\" INTEGER")
+    })
+    {
+        try { await db.Database.ExecuteSqlRawAsync(sql); }
+        catch { /* coluna já existe */ }
+    }
+}
+
+// Expor para testes de integração (WebApplicationFactory<Program>)
+public partial class Program { }

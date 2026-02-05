@@ -1,0 +1,50 @@
+# Hotel Manager - API + Frontend + Banco (SQLite em volume)
+# Uso: na raiz do repositório: docker compose up --build
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: HotelManager.API/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=/data/HotelManager.db
+      - Jwt__Key=${JWT_KEY:-ChaveSecretaMinimo32CaracteresParaHS256!!}
+      - Jwt__Issuer=HotelManager.API
+      - Jwt__Audience=HotelManager.Frontend
+      - Cors__Origins__0=http://localhost:4200
+      - Cors__Origins__1=http://localhost
+      - Cors__Origins__2=http://frontend:80
+    volumes:
+      - dbdata:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./hotel-manager-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Banco: SQLite via volume compartilhado com a API.
+  # Para produção com PostgreSQL, descomente o serviço db e altere ConnectionStrings na API.
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: hotel
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hotel_secret}
+  #     POSTGRES_DB: HotelManagerDb
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+volumes:
+  dbdata:
+  # pgdata:

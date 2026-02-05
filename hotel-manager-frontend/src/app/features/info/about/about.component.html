@@ -1,15 +1,292 @@
-<div class="page-container">
-  <a routerLink="/" class="back">← Voltar</a>
-  <article class="content">
-    <h1>Sobre o {{ hotel.nome }}</h1>
-    <p class="lead">{{ hotel.sobre }}</p>
-    <h2>Nossa história</h2>
-    <p>Desde 1985, oferecemos hospitalidade de qualidade no coração da cidade. O hotel passou por diversas reformas, sempre mantendo o charme original e incorporando as melhores práticas de conforto e sustentabilidade.</p>
-    <h2>Diferenciais</h2>
-    <ul>
-      @for (item of hotel.destaque; track item) {
-        <li>{{ item }}</li>
-      }
-    </ul>
-  </article>
+<div class="about-page">
+  <!-- Hero Section -->
+  <section class="page-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h1>{{ hotel.nome }}</h1>
+      <p class="hero-slogan">Vista Serena — onde o tempo desacelera e o bem-estar se torna destino.</p>
+    </div>
+  </section>
+
+  <!-- Seção Principal do Hotel -->
+  <section class="intro-section">
+    <div class="page-container">
+      <div class="intro-content">
+        <p class="lead-text">
+          O Hotel & Spa Vista Serena é um refúgio de serenidade criado para quem busca descanso profundo, cuidado terapêutico e hospitalidade sofisticada. Em um ambiente que combina elegância clássica, natureza e conforto contemporâneo, cada detalhe foi pensado para proporcionar uma experiência de relaxamento absoluto.
+        </p>
+        <p class="lead-text">
+          Aqui, o ritmo desacelera, os sentidos despertam e o corpo reencontra seu equilíbrio. Do acolhimento personalizado aos rituais exclusivos do spa, o Vista Serena transforma estadias em experiências memoráveis.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Storytelling da Marca -->
+  <section class="story-section">
+    <div class="page-container">
+      <div class="story-content">
+        <h2 class="section-title">Nossa História</h2>
+        <div class="story-text">
+          <p>
+            Fundado em 1985, o Vista Serena nasceu com o propósito de oferecer um refúgio urbano dedicado ao bem-estar integral. Inspirado na filosofia de equilíbrio entre corpo e mente, o hotel evoluiu ao longo das décadas sem perder sua essência: acolher com elegância, cuidar com excelência e proporcionar silêncio em meio ao movimento da cidade.
+          </p>
+          <p>
+            Cada reforma preservou a alma do edifício original enquanto incorporou inovação, sustentabilidade e tecnologia de ponta. Hoje, o Vista Serena é reconhecido como um destino terapêutico, onde hospitalidade e cura caminham juntas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção do Spa -->
+  <section class="spa-section" id="spa">
+    <div class="spa-hero">
+      <div class="spa-hero-overlay"></div>
+      <div class="spa-hero-content">
+        <h2 class="spa-title">Spa Vista Serena</h2>
+        <p class="spa-subtitle">Um santuário terapêutico criado para restaurar o equilíbrio físico e emocional</p>
+      </div>
+    </div>
+
+    <div class="page-container">
+      <!-- Filosofia do Spa -->
+      <div class="spa-philosophy">
+        <h3 class="section-subtitle">🧘 Filosofia do Spa</h3>
+        <p class="philosophy-text">
+          Nosso spa é guiado pela filosofia do cuidado integral. Acreditamos que o verdadeiro bem-estar nasce do equilíbrio entre corpo, mente e energia. Cada ritual é cuidadosamente desenhado para restaurar a vitalidade, liberar tensões acumuladas e reconectar o hóspede consigo mesmo.
+        </p>
+        <p class="philosophy-text">
+          Utilizamos técnicas terapêuticas tradicionais combinadas a abordagens contemporâneas, ativos naturais e protocolos personalizados. O spa Vista Serena não é apenas um serviço — é um santuário de renovação.
+        </p>
+      </div>
+
+      <!-- Texto Completo do Spa -->
+      <div class="spa-description">
+        <p>
+          O Spa Vista Serena é um santuário terapêutico criado para restaurar o equilíbrio físico e emocional. Em um ambiente silencioso, aromático e cuidadosamente iluminado, oferecemos rituais que despertam os sentidos e promovem profunda regeneração.
+        </p>
+        <p>
+          Cada experiência começa com uma recepção acolhedora e uma breve consulta personalizada. A partir dela, nossos terapeutas especializados conduzem tratamentos sob medida, combinando técnicas corporais, terapias energéticas e ativos naturais de alta performance.
+        </p>
+        <p>
+          Após o ritual, o hóspede é convidado a relaxar em nossa área sensorial com ofurôs e espaços de descanso, prolongando os benefícios do tratamento.
+        </p>
+        <p class="spa-signature">
+          Aqui, o cuidado é ritual. O silêncio é cura. O tempo é seu.
+        </p>
+      </div>
+
+      <!-- Ícones Sensoriais -->
+      <div class="sensory-icons">
+        <div class="sensory-item">
+          <span class="sensory-icon">🌸</span>
+          <span class="sensory-label">Aroma</span>
+        </div>
+        <div class="sensory-item">
+          <span class="sensory-icon">🔊</span>
+          <span class="sensory-label">Som</span>
+        </div>
+        <div class="sensory-item">
+          <span class="sensory-icon">🤲</span>
+          <span class="sensory-label">Toque</span>
+        </div>
+        <div class="sensory-item">
+          <span class="sensory-icon">⚡</span>
+          <span class="sensory-label">Energia</span>
+        </div>
+      </div>
+
+      <!-- Ritual Exclusivo -->
+      <div class="signature-ritual">
+        <div class="ritual-badge">🏆 Ritual Exclusivo</div>
+        <h3 class="ritual-title">Ritual Vista Serena Signature</h3>
+        <p class="ritual-description">
+          Experiência terapêutica exclusiva que combina esfoliação mineral, massagem aromática profunda e imersão em banho terapêutico. O ritual foi criado para purificar o corpo, aliviar tensões e restaurar energia vital.
+        </p>
+        <p class="ritual-description">
+          Finalizado com infusão de ervas calmantes em nossa área de relaxamento, o Signature é a expressão máxima do cuidado Vista Serena.
+        </p>
+        <div class="ritual-details">
+          <div class="ritual-detail-item">
+            <span class="detail-label">Duração:</span>
+            <span class="detail-value">90 minutos</span>
+          </div>
+          <div class="ritual-detail-item">
+            <span class="detail-label">Resultado:</span>
+            <span class="detail-value">leveza, renovação e equilíbrio profundo</span>
+          </div>
+        </div>
+        <button class="btn-ritual" (click)="scrollToBooking()">Agendar Ritual Signature</button>
+      </div>
+
+      <!-- Menu de Tratamentos -->
+      <div class="treatments-menu">
+        <h3 class="section-subtitle">📋 Menu de Tratamentos</h3>
+        
+        <div class="treatment-category">
+          <h4 class="category-title">🌿 Detox</h4>
+          <p class="category-subtitle">Rituais purificantes para eliminar toxinas e restaurar leveza.</p>
+          <ul class="treatment-list">
+            <li>Drenagem linfática terapêutica</li>
+            <li>Esfoliação corporal mineral</li>
+            <li>Banho de argila purificante</li>
+            <li>Protocolo desintoxicante completo</li>
+          </ul>
+        </div>
+
+        <div class="treatment-category">
+          <h4 class="category-title">🧘 Relaxamento</h4>
+          <p class="category-subtitle">Experiências sensoriais para desacelerar corpo e mente.</p>
+          <ul class="treatment-list">
+            <li>Massagem relaxante profunda</li>
+            <li>Shiatsu terapêutico</li>
+            <li>Reflexologia restauradora</li>
+            <li>Massagem aromática sensorial</li>
+            <li>Tratamento facial regenerador</li>
+          </ul>
+        </div>
+
+        <div class="treatment-category">
+          <h4 class="category-title">✨ Energização</h4>
+          <p class="category-subtitle">Rituais revitalizantes para despertar vitalidade.</p>
+          <ul class="treatment-list">
+            <li>Massagem energizante</li>
+            <li>Tratamento revitalizante corporal</li>
+            <li>Esfoliação energética</li>
+            <li>Banho terapêutico mineral</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Galeria do Spa -->
+      <div class="spa-gallery">
+        <h3 class="section-subtitle">Galeria</h3>
+        <div class="gallery-grid">
+          @for (img of spaImages; track img) {
+            <div class="gallery-item">
+              <img [src]="img" alt="Spa Vista Serena" loading="lazy" />
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Depoimentos -->
+      <div class="testimonials">
+        <h3 class="section-subtitle">⭐ Depoimentos</h3>
+        <div class="testimonials-grid">
+          @for (testimonial of testimonials; track testimonial.author) {
+            <div class="testimonial-card">
+              <p class="testimonial-text">"{{ testimonial.text }}"</p>
+              <p class="testimonial-author">— {{ testimonial.author }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Benefícios Pós-Tratamento -->
+      <div class="benefits-section">
+        <h3 class="section-subtitle">✨ Benefícios dos Tratamentos</h3>
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <span class="benefit-icon">💆</span>
+            <span class="benefit-text">Redução de tensões musculares</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">🧘</span>
+            <span class="benefit-text">Equilíbrio emocional</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">✨</span>
+            <span class="benefit-text">Renovação da energia vital</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">🌿</span>
+            <span class="benefit-text">Purificação e detox</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">😌</span>
+            <span class="benefit-text">Melhora da qualidade do sono</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">💫</span>
+            <span class="benefit-text">Reconexão consigo mesmo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Política do Spa -->
+      <div class="spa-policy">
+        <h3 class="section-subtitle">📋 Política do Spa</h3>
+        <div class="policy-content">
+          <div class="policy-item">
+            <strong>Dress Code:</strong> Roupas confortáveis são recomendadas. Fornecemos roupões e chinelos.
+          </div>
+          <div class="policy-item">
+            <strong>Silêncio:</strong> Mantemos um ambiente de silêncio respeitoso para preservar a experiência terapêutica.
+          </div>
+          <div class="policy-item">
+            <strong>Celulares:</strong> Solicitamos que dispositivos sejam mantidos em modo silencioso ou desligados.
+          </div>
+          <div class="policy-item">
+            <strong>Punctualidade:</strong> Chegada com 15 minutos de antecedência para preparação.
+          </div>
+          <div class="policy-item">
+            <strong>Certificações:</strong> Todos os nossos terapeutas são certificados e possuem formação especializada.
+          </div>
+        </div>
+        <div class="spa-badge">
+          <span class="badge-icon">🏅</span>
+          <span class="badge-text">Spa Terapêutico Especializado</span>
+        </div>
+      </div>
+
+      <!-- Horários e Reservas -->
+      <div class="spa-schedule">
+        <h3 class="section-subtitle">⏰ Horários e Reservas</h3>
+        <div class="schedule-content">
+          <p><strong>Horário de Funcionamento:</strong> Segunda a Domingo, das 8h às 22h</p>
+          <p><strong>Reservas:</strong> Recomendamos agendamento prévio. Disponibilidade sujeita à confirmação.</p>
+          <div class="booking-options">
+            <button class="btn-booking-primary" (click)="scrollToBooking()">Agendar Ritual</button>
+            <button class="btn-booking-secondary" (click)="agendarCasal()">Pacotes para Casais</button>
+            <button class="btn-booking-secondary" (click)="agendarVIP()">Experiência VIP Privada</button>
+            <button class="btn-booking-secondary" (click)="agendarGiftCard()">Gift Cards</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="spa-faq">
+        <h3 class="section-subtitle">❓ Perguntas Frequentes</h3>
+        <div class="faq-list">
+          @for (faq of faqs; track faq.question) {
+            <div class="faq-item">
+              <h4 class="faq-question">{{ faq.question }}</h4>
+              <p class="faq-answer">{{ faq.answer }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Copy de Marketing -->
+      <div class="marketing-copy">
+        <p class="copy-text">
+          Descubra um espaço onde o silêncio cura, o toque restaura e o tempo desacelera. No Vista Serena, o bem-estar não é um serviço — é uma experiência cuidadosamente orquestrada para quem valoriza equilíbrio, exclusividade e sofisticação.
+        </p>
+        <p class="copy-text copy-signature">
+          Permita-se pausar. Respire. Renove-se.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Botão Fixo de Agendamento -->
+  <div class="fixed-booking-btn">
+    <button class="btn-fixed" (click)="scrollToBooking()">
+      <span class="btn-icon">📅</span>
+      <span class="btn-text">Agendar Ritual</span>
+    </button>
+  </div>
 </div>

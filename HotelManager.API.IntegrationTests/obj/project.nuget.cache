@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "dgSpecHash": "1sEArR4kp+s=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'Microsoft.NET.Test.Sdk' da origem remota 'https://api.nuget.org/v3-flatcontainer/microsoft.net.test.sdk/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'xunit' da origem remota 'https://api.nuget.org/v3-flatcontainer/xunit/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'Microsoft.AspNetCore.Mvc.Testing' da origem remota 'https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.mvc.testing/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.IntegrationTests\\HotelManager.API.IntegrationTests.csproj",
+      "targetGraphs": []
+    }
+  ]
+}

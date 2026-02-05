@@ -1,30 +1,168 @@
-<div class="page-container">
-  <a routerLink="/" class="back">← Voltar</a>
-  <h1>Políticas do hotel</h1>
+<div class="policies-page">
+  <!-- Hero Section com imagem do hotel -->
+  <section class="page-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h1>Políticas do Hotel & Spa Vista Serena</h1>
+      <p class="hero-subtitle">
+        Elegância, conforto e segurança em cada detalhe da sua estadia.
+      </p>
+    </div>
+  </section>
 
-  <div class="policy-card">
-    <h2>🕐 Check-in e Check-out</h2>
-    <p><strong>Check-in:</strong> a partir das {{ hotel.checkIn }}</p>
-    <p><strong>Check-out:</strong> até às {{ hotel.checkOut }}</p>
-  </div>
+  <div class="page-container">
+    <!-- Introdução -->
+    <section class="policies-intro">
+      <h2>📜 Políticas Gerais do Resort</h2>
+      <p class="intro-resort-name">Hotel & Spa Vista Serena</p>
+      <p>
+        O Vista Serena preza por uma experiência tranquila, segura e harmoniosa
+        para todos os hóspedes. Nossas políticas garantem organização, conforto
+        e excelência no atendimento.
+      </p>
+    </section>
 
-  <div class="policy-card">
-    <h2>❌ Cancelamento</h2>
-    <p>{{ hotel.politicas.cancelamento }}</p>
-  </div>
+    <div class="policy-grid">
+      <!-- Check-in / Check-out -->
+      <section class="policy-card">
+        <h2>🕐 Check-in e Check-out</h2>
+        <p>
+          <strong>Check-in:</strong> a partir das
+          <span class="policy-highlight">{{ hotel.checkIn }}</span>
+        </p>
+        <p>
+          <strong>Check-out:</strong> até
+          <span class="policy-highlight">{{ hotel.checkOut }}</span>
+        </p>
+        <p class="policy-note">
+          Early check-in e late check-out podem ser solicitados mediante
+          disponibilidade e taxa adicional.
+        </p>
+      </section>
 
-  <div class="policy-card">
-    <h2>🐕 Pets</h2>
-    <p>{{ hotel.politicas.pets }}</p>
-  </div>
+      <!-- Garantia de reserva -->
+      <section class="policy-card">
+        <h2>💳 Garantia de reserva</h2>
+        <ul class="policy-list">
+          <li>Reservas são garantidas mediante cartão de crédito válido ou pagamento antecipado.</li>
+          <li>O hotel se reserva o direito de pré-autorizar valores conforme a política tarifária.</li>
+        </ul>
+      </section>
 
-  <div class="policy-card">
-    <h2>👶 Crianças</h2>
-    <p>{{ hotel.politicas.criancas }}</p>
-  </div>
+      <!-- Cancelamento -->
+      <section class="policy-card">
+        <h2>❌ Cancelamento</h2>
+        <ul class="policy-list">
+          <li>Cancelamento gratuito até 48 horas antes do check-in.</li>
+          <li>Após esse período, será cobrada 1 diária.</li>
+          <li>Tarifas promocionais podem possuir regras específicas.</li>
+        </ul>
+      </section>
 
-  <div class="policy-card">
-    <h2>🚬 Fumantes</h2>
-    <p>{{ hotel.politicas.fumantes }}</p>
+      <!-- Pets -->
+      <section class="policy-card">
+        <h2>🐕 Política de pets</h2>
+        <p>
+          Aceitamos pets de pequeno porte mediante solicitação prévia e taxa adicional.
+          O tutor é responsável por quaisquer danos ou perturbações causadas.
+        </p>
+      </section>
+
+      <!-- Crianças -->
+      <section class="policy-card">
+        <h2>👶 Crianças</h2>
+        <p>
+          Crianças até 5 anos hospedam-se gratuitamente acompanhadas dos responsáveis.
+          Camas extras e berços estão sujeitos à disponibilidade.
+        </p>
+      </section>
+
+      <!-- Antitabagismo -->
+      <section class="policy-card">
+        <h2>🚬 Política antitabagismo</h2>
+        <ul class="policy-list">
+          <li>Todos os ambientes internos são 100% não fumantes.</li>
+          <li>O descumprimento pode gerar taxa de higienização especial.</li>
+        </ul>
+      </section>
+
+      <!-- Convivência e silêncio -->
+      <section class="policy-card">
+        <h2>🔇 Convivência e silêncio</h2>
+        <p>
+          Respeitamos o descanso dos hóspedes. Solicitamos silêncio entre
+          <strong>22h e 8h</strong>, preservando um ambiente sereno e acolhedor.
+        </p>
+      </section>
+
+      <!-- Termos de uso e privacidade -->
+      <section class="policy-card">
+        <h2>🔒 Termos de Uso e Privacidade</h2>
+        <ul class="policy-list">
+          <li>Dados pessoais são coletados exclusivamente para fins de reserva, atendimento e melhoria de experiência.</li>
+          <li>Não compartilhamos informações com terceiros sem consentimento, exceto quando exigido por lei.</li>
+          <li>Utilizamos protocolos de segurança para proteção de dados.</li>
+          <li>O hóspede é responsável pela veracidade das informações fornecidas.</li>
+          <li>O uso indevido do site pode resultar em bloqueio de acesso.</li>
+          <li>Nos comprometemos com transparência, confidencialidade e segurança digital.</li>
+        </ul>
+      </section>
+
+      <!-- Regras do Spa -->
+      <section class="policy-card">
+        <h2>🌿 Regras do Spa</h2>
+        <p class="policy-section-intro">
+          O Spa Vista Serena é um espaço de silêncio e regeneração. Para preservar essa experiência:
+        </p>
+        <ul class="policy-list">
+          <li>Chegar com 15 minutos de antecedência.</li>
+          <li>Cancelamentos com mínimo de 12h.</li>
+          <li>Uso obrigatório de traje fornecido pelo spa.</li>
+          <li>Celulares em modo silencioso.</li>
+          <li>Idade mínima: 16 anos.</li>
+          <li>Não recomendado após consumo de álcool.</li>
+          <li>Informe condições médicas previamente.</li>
+          <li>Respeito absoluto ao ambiente terapêutico.</li>
+          <li>O atraso pode reduzir o tempo do tratamento sem alteração de valor.</li>
+        </ul>
+      </section>
+
+      <!-- Regras da Piscina -->
+      <section class="policy-card">
+        <h2>🏊 Regras da Piscina</h2>
+        <p class="policy-section-intro">
+          Para segurança e conforto coletivo:
+        </p>
+        <ul class="policy-list">
+          <li>Horário de funcionamento: <strong>7h às 22h</strong>.</li>
+          <li>Ducha obrigatória antes do uso.</li>
+          <li>Proibido vidro na área da piscina.</li>
+          <li>Crianças apenas com supervisão de um responsável.</li>
+          <li>Traje de banho adequado obrigatório.</li>
+          <li>Não é permitido mergulho em áreas rasas.</li>
+          <li>Respeitar o limite de ocupação.</li>
+          <li>Não reservamos espreguiçadeiras.</li>
+          <li>O hotel não se responsabiliza por objetos deixados desacompanhados.</li>
+        </ul>
+      </section>
+
+      <!-- Regulamento interno -->
+      <section class="policy-card">
+        <h2>📘 Regulamento Interno</h2>
+        <ul class="policy-list">
+          <li>Visitantes devem ser registrados na recepção.</li>
+          <li>Danos ao patrimônio serão cobrados.</li>
+          <li>Itens do quarto não devem ser removidos.</li>
+          <li>Objetos esquecidos são guardados por 30 dias.</li>
+          <li>O hotel não se responsabiliza por valores não guardados no cofre.</li>
+          <li>É proibido comportamento agressivo ou ilegal.</li>
+          <li>Reservamo-nos o direito de encerrar estadias que comprometam a ordem.</li>
+        </ul>
+        <p class="policy-note">
+          Prezamos por respeito, elegância e convivência cordial em todos os espaços do resort.
+        </p>
+      </section>
+    </div>
   </div>
 </div>

@@ -10,4 +10,7 @@ public class LoginRequest
 
     [Required(ErrorMessage = "Senha é obrigatória")]
     public string Senha { get; set; } = string.Empty;
+
+    /// <summary>Se true, usa refresh token longo (7-30 dias). Caso contrário, sessão curta (~24h).</summary>
+    public bool LembrarDeMim { get; set; }
 }

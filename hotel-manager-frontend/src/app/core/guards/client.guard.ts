@@ -2,11 +2,11 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-/** Só clientes (não-admin) podem reservar. Admin é redirecionado. */
+/** Só hóspedes (User) podem reservar. Colaboradores (Admin, Gerente, Recepcionista) são redirecionados. */
 export const clientGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (auth.isAdmin()) {
+  if (auth.isStaff()) {
     router.navigate(['/quartos']);
     return false;
   }

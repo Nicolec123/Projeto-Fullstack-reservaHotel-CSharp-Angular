@@ -1,20 +1,29 @@
-<div class="page-container">
-  <a routerLink="/" class="back">← Voltar</a>
-  <h1>Serviços e comodidades</h1>
-  <p class="subtitle">Tudo que você precisa para uma estadia perfeita</p>
-  <div class="services-grid">
-    @for (s of hotel.servicos; track s.titulo) {
-      <a [routerLink]="['/servicos', s.id]" class="service-card">
-        <div class="service-card-image">
-          <img [src]="s.imagem" [alt]="s.titulo" />
-          <span class="service-card-icon">{{ s.icon }}</span>
-        </div>
-        <div class="service-card-content">
-          <h3>{{ s.titulo }}</h3>
-          <p>{{ s.desc }}</p>
-          <span class="service-card-link">Ver detalhes →</span>
-        </div>
-      </a>
-    }
+<div class="services-page">
+  <!-- Hero Section com imagem do hotel -->
+  <section class="page-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h1>Serviços e comodidades</h1>
+      <p class="hero-subtitle">Tudo que você precisa para uma estadia perfeita</p>
+    </div>
+  </section>
+
+  <div class="page-container">
+    <div class="services-grid">
+      @for (s of hotel.servicos; track s.titulo) {
+        <a [routerLink]="['/servicos', s.id]" class="service-card">
+          <div class="service-card-image">
+            <img [src]="s.imagem" [alt]="s.titulo" />
+            <span class="service-card-icon">{{ s.icon }}</span>
+          </div>
+          <div class="service-card-content">
+            <h3>{{ s.titulo }}</h3>
+            <p>{{ s.desc }}</p>
+            <span class="service-card-link">Ver detalhes →</span>
+          </div>
+        </a>
+      }
+    </div>
   </div>
 </div>

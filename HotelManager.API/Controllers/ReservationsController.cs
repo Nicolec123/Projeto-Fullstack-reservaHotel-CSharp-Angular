@@ -20,7 +20,7 @@ public class ReservationsController : ControllerBase
     }
 
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-    private bool IsAdmin => User.IsInRole("Admin");
+    private bool IsStaff => User.IsInRole("Admin") || User.IsInRole("Gerente") || User.IsInRole("Recepcionista");
 
     [HttpGet("my")]
     public async Task<ActionResult<PagedResult<ReservationDto>>> GetMyReservations([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
@@ -31,7 +31,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Gerente,Recepcionista")]
     public async Task<ActionResult<PagedResult<ReservationDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
         if (pageSize > 50) pageSize = 50;
@@ -42,7 +42,7 @@ public class ReservationsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ReservationDto>> GetById(int id, CancellationToken ct)
     {
-        var res = await _reservationService.GetByIdAsync(id, UserId, IsAdmin, ct);
+        var res = await _reservationService.GetByIdAsync(id, UserId, IsStaff, ct);
         if (res == null) return NotFound();
         return Ok(res);
     }
@@ -59,7 +59,7 @@ public class ReservationsController : ControllerBase
     [HttpPost("{id:int}/cancel")]
     public async Task<ActionResult<ReservationDto>> Cancel(int id, CancellationToken ct)
     {
-        var res = await _reservationService.CancelAsync(id, UserId, IsAdmin, ct);
+        var res = await _reservationService.CancelAsync(id, UserId, IsStaff, ct);
         if (res == null) return NotFound();
         return Ok(res);
     }

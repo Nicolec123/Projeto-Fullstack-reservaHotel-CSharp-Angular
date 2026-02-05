@@ -1,14 +1,23 @@
-<div class="page-container">
-  <a routerLink="/" class="back">← Voltar</a>
-  <h1>Galeria</h1>
-  <p class="subtitle">Conheça nossos espaços</p>
-  <div class="gallery-grid">
-    @for (img of images; track img.alt; let i = $index) {
-      <div class="gallery-item" (click)="open(i)">
-        <img [src]="img.url" [alt]="img.alt" loading="lazy" />
-        <span class="caption">{{ img.categoria }}</span>
-      </div>
-    }
+<div class="gallery-page">
+  <!-- Hero Section com imagem do hotel -->
+  <section class="page-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h1>Galeria</h1>
+      <p class="hero-subtitle">Conheça nossos espaços</p>
+    </div>
+  </section>
+
+  <div class="page-container">
+    <div class="gallery-grid">
+      @for (img of images; track img.alt; let i = $index) {
+        <div class="gallery-item" (click)="open(i)">
+          <img [src]="img.url" [alt]="img.alt" loading="lazy" />
+          <span class="caption">{{ img.categoria }}</span>
+        </div>
+      }
+    </div>
   </div>
 </div>
 

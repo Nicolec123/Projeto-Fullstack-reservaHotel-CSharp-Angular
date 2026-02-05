@@ -29,7 +29,19 @@
 
         <div class="simulacao-card spa-choice">
           <h2>Deseja adicionar Spa?</h2>
-          <p class="spa-desc">Escolha o tipo e o valor que preferir. O valor do spa é único (uma vez por reserva).</p>
+          <p class="spa-desc">Escolha um serviço individual ou um pacote completo. O valor do spa é único (uma vez por reserva).</p>
+          
+          <div class="spa-tabs">
+            <button type="button" class="spa-tab" [class.active]="selectedSpa() !== null || selectedPackage() === null" (click)="selectSpa(null); selectPackage(null)">
+              Serviços Individuais
+            </button>
+            <button type="button" class="spa-tab" [class.active]="selectedPackage() !== null">
+              Pacotes Completos
+            </button>
+          </div>
+
+          <!-- Serviços Individuais -->
+          @if (selectedPackage() === null) {
           <div class="spa-options">
             <label class="spa-option" [class.selected]="selectedSpa() === null">
               <input type="radio" name="spa" [checked]="selectedSpa() === null" (change)="selectSpa(null)" />
@@ -46,6 +58,56 @@
               </label>
             }
           </div>
+          }
+
+          <!-- Pacotes Completos -->
+          @if (selectedSpa() === null) {
+          <div class="spa-packages-section">
+            <label class="spa-option" [class.selected]="selectedPackage() === null">
+              <input type="radio" name="spaPackage" [checked]="selectedPackage() === null" (change)="selectPackage(null)" />
+              <span class="option-label">Sem pacote — só hospedagem</span>
+            </label>
+            @for (pkg of spaPackages; track pkg.id) {
+              <label class="spa-package-option" [class.selected]="selectedPackage()?.id === pkg.id" [class.popular]="pkg.popular">
+                <input type="radio" name="spaPackage" [checked]="selectedPackage()?.id === pkg.id" (change)="selectPackage(pkg)" />
+                <div class="package-option-content">
+                  <div class="package-header">
+                    @if (pkg.popular) {
+                      <span class="package-badge">Mais Popular</span>
+                    }
+                    <span class="package-name">{{ pkg.nome }}</span>
+                    <span class="package-price">{{ formatarPreco(pkg.precoBase) }}</span>
+                  </div>
+                  <p class="package-desc">{{ pkg.descricao }}</p>
+                  <div class="package-details">
+                    <span>⏱️ {{ pkg.duracao }}</span>
+                    <span>👥 {{ pkg.pessoasIncluidas }} pessoa{{ pkg.pessoasIncluidas > 1 ? 's' : '' }}</span>
+                  </div>
+                  @if (selectedPackage()?.id === pkg.id && pkg.tipo === 'familia') {
+                    <div class="package-pessoas-selector">
+                      <label>
+                        <span>Número de pessoas:</span>
+                        <input 
+                          type="number" 
+                          [value]="packageNumPessoas()" 
+                          [min]="pkg.pessoasIncluidas"
+                          [max]="pkg.pessoasMaximas"
+                          (input)="updatePackagePessoas(+$any($event.target).value)"
+                        />
+                        @if (packageNumPessoas() > pkg.pessoasIncluidas) {
+                          <span class="extra-price">+ {{ formatarPreco((packageNumPessoas() - pkg.pessoasIncluidas) * (pkg.precoPorPessoaExtra || 0)) }} por pessoa extra</span>
+                        }
+                      </label>
+                    </div>
+                  }
+                  <div class="package-final-price">
+                    Total: {{ formatarPreco(calculateSpaPackagePrice(pkg.id, selectedPackage()?.id === pkg.id ? packageNumPessoas() : pkg.pessoasIncluidas)) }}
+                  </div>
+                </div>
+              </label>
+            }
+          </div>
+          }
         </div>
 
         <div class="simulacao-total">
@@ -58,6 +120,12 @@
             <div class="total-line">
               <span>Spa: {{ spa.nome }} ({{ spa.duracao }})</span>
               <span>R$ {{ spa.preco | number:'1.2-2' }}</span>
+            </div>
+          }
+          @if (selectedPackage(); as pkg) {
+            <div class="total-line">
+              <span>Pacote Spa: {{ pkg.nome }} ({{ packageNumPessoas() }} pessoa{{ packageNumPessoas() > 1 ? 's' : '' }})</span>
+              <span>{{ formatarPreco(calculateSpaPackagePrice(pkg.id, packageNumPessoas())) }}</span>
             </div>
           }
           <div class="total-line total-final">

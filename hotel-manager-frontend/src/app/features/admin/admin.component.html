@@ -1,217 +1,546 @@
-<div class="container">
-  <h1>Painel administrativo</h1>
-  <a routerLink="/quartos" class="link">← Voltar</a>
-
-  <div class="tabs">
-    <button [class.active]="tab() === 'inicio'" (click)="setTab('inicio')">Início</button>
-    <button [class.active]="tab() === 'rooms'" (click)="setTab('rooms')">Quartos</button>
-    <button [class.active]="tab() === 'reservations'" (click)="setTab('reservations')">Reservas</button>
-    <button [class.active]="tab() === 'users'" (click)="setTab('users')">Usuários</button>
-    <button [class.active]="tab() === 'services'" (click)="setTab('services')">Serviços</button>
-  </div>
-
-  @if (loading()) {
-    <p class="loading">Carregando...</p>
-  } @else if (tab() === 'inicio') {
-    <div class="dashboard">
-      <h2>Visão geral do site</h2>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-icon">🛏️</span>
-          <span class="stat-value">{{ roomTotal() }}</span>
-          <span class="stat-label">Quartos</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">📅</span>
-          <span class="stat-value">{{ resTotal() }}</span>
-          <span class="stat-label">Reservas</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">👥</span>
-          <span class="stat-value">{{ userTotal() }}</span>
-          <span class="stat-label">Usuários</span>
-        </div>
-      </div>
-      <div class="dashboard-actions">
-        <button type="button" class="btn-tab" (click)="setTab('rooms')">Gerenciar quartos</button>
-        <button type="button" class="btn-tab" (click)="setTab('reservations')">Ver reservas</button>
-        <button type="button" class="btn-tab" (click)="setTab('users')">Ver usuários</button>
-        <button type="button" class="btn-tab" (click)="setTab('services')">Ver serviços</button>
-      </div>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <span class="material-icons sidebar-logo">hotel</span>
+      <h1 class="sidebar-title">Painel Admin</h1>
+      <a routerLink="/" class="sidebar-back"><span class="material-icons sidebar-back-icon">home</span> Site</a>
     </div>
-  } @else if (tab() === 'rooms') {
-    <div class="form-card">
-      <h2>Cadastrar quarto</h2>
-      @if (roomError()) {
-        <p class="error">{{ roomError() }}</p>
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item" [class.active]="tab() === 'dashboard'" (click)="setTab('dashboard')">
+        <span class="material-icons nav-icon">dashboard</span>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'perfil'" (click)="setTab('perfil')">
+        <span class="material-icons nav-icon">person</span>
+        <span>Meu perfil</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'rooms'" (click)="setTab('rooms')">
+        <span class="material-icons nav-icon">meeting_room</span>
+        <span>Quartos</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'reservations'" (click)="setTab('reservations')">
+        <span class="material-icons nav-icon">event</span>
+        <span>Reservas</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'financeiro'" (click)="setTab('financeiro')">
+        <span class="material-icons nav-icon">payments</span>
+        <span>Financeiro</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'spa'" (click)="setTab('spa')">
+        <span class="material-icons nav-icon">spa</span>
+        <span>Spa</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'hospedes'" (click)="setTab('hospedes')">
+        <span class="material-icons nav-icon">people</span>
+        <span>Hóspedes</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'avaliacoes'" (click)="setTab('avaliacoes')">
+        <span class="material-icons nav-icon">star</span>
+        <span>Avaliações</span>
+      </button>
+      <button type="button" class="nav-item" [class.active]="tab() === 'configuracoes'" (click)="setTab('configuracoes')">
+        <span class="material-icons nav-icon">settings</span>
+        <span>Configurações</span>
+      </button>
+      @if (auth.isAdmin()) {
+        <button type="button" class="nav-item" [class.active]="tab() === 'colaboradores'" (click)="setTab('colaboradores')">
+          <span class="material-icons nav-icon">person_add</span>
+          <span>Colaboradores</span>
+        </button>
       }
-      <form [formGroup]="roomForm" (ngSubmit)="createRoom()">
-        <input formControlName="numero" placeholder="Número (ex: 101)" />
-        <select formControlName="tipo">
-          <option value="Standard">Standard</option>
-          <option value="Luxo">Luxo</option>
-          <option value="Suíte">Suíte</option>
-        </select>
-        <input type="number" formControlName="precoDiaria" placeholder="Preço/dia" min="1" step="0.01" />
-        <button type="submit">Cadastrar</button>
-      </form>
+      <button type="button" class="nav-item" [class.active]="tab() === 'seguranca'" (click)="setTab('seguranca')">
+        <span class="material-icons nav-icon">lock</span>
+        <span>Segurança</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="admin-name">{{ user()?.nome }}</p>
+      <p class="admin-role">{{ roleLabel(user()?.role ?? '') }}</p>
+      <button type="button" class="btn-logout" (click)="auth.logout()">Sair</button>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Tipo</th>
-            <th>Preço/dia</th>
-            <th>Estado</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of rooms(); track r.id) {
-            <tr>
-              <td>{{ r.numero }}</td>
-              <td>{{ r.tipo }}</td>
-              <td>R$ {{ r.precoDiaria | number:'1.2-2' }}</td>
-              <td>{{ r.bloqueado ? 'Bloqueado' : 'Disponível' }}</td>
-              <td>
-                <button type="button" class="btn-sm" (click)="toggleBlock(r)">
-                  {{ r.bloqueado ? 'Desbloquear' : 'Bloquear' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  } @else if (tab() === 'reservations') {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Quarto</th>
-            <th>Hóspede</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of reservations(); track r.id) {
-            <tr>
-              <td>{{ r.roomNumero }}</td>
-              <td>{{ r.userNome }}</td>
-              <td>{{ formatDate(r.dataInicio) }}</td>
-              <td>{{ formatDate(r.dataFim) }}</td>
-              <td>{{ r.status }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  } @else if (tab() === 'users') {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Perfil</th>
-            <th>Cadastro</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (u of users(); track u.id) {
-            <tr>
-              <td>{{ u.nome }}</td>
-              <td>{{ u.email }}</td>
-              <td>{{ u.role }}</td>
-              <td>{{ formatDate(u.createdAt) }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  } @else if (tab() === 'services') {
-    <div class="services-admin">
-      <h2>Serviços e Comodidades do Hotel</h2>
-      <p class="services-intro">Visualize todos os serviços cadastrados no sistema, incluindo informações detalhadas, horários, localização e contatos.</p>
-      
-      <div class="services-grid-admin">
-        @for (servico of hotel.servicos; track servico.titulo) {
-          @let detail = getServiceDetail(servico.id);
-          <div class="service-card-admin">
-            <div class="service-header-admin">
-              <span class="service-icon-admin">{{ servico.icon }}</span>
-              <h3>{{ servico.titulo }}</h3>
+  </aside>
+
+  <!-- Conteúdo -->
+  <main class="admin-main">
+    @if (editingServiceId(); as sid) {
+      <section class="service-edit-view">
+        <div class="service-edit-header">
+          <button type="button" class="btn-back" (click)="closeServiceEdit()">
+            <span class="material-icons">arrow_back</span> Voltar aos serviços
+          </button>
+          <h2 class="service-edit-title">{{ editingService()?.titulo }}</h2>
+        </div>
+        <div class="service-edit-split">
+          <div class="service-preview">
+            <div class="preview-label">
+              <span class="material-icons">visibility</span> Preview — o que o hóspede vê
             </div>
-            <div class="service-body-admin">
-              <p class="service-desc-admin">{{ servico.desc }}</p>
-              
-              @if (detail) {
-                <div class="service-details-admin">
-                  @if (detail.horario) {
-                    <div class="detail-row">
-                      <strong>⏰ Horário:</strong> <span>{{ detail.horario }}</span>
-                    </div>
+            <iframe [src]="servicoPreviewUrl(sid)" class="preview-iframe" title="Preview do serviço"></iframe>
+            <a [href]="'/servicos/' + sid" target="_blank" rel="noopener" class="btn-preview-guest">
+              <span class="material-icons">open_in_new</span> Ver como hóspede
+            </a>
+          </div>
+          <aside class="service-admin-panel">
+            <div class="panel-label">
+              <span class="material-icons">tune</span> Ferramentas de gestão
+            </div>
+            <div class="panel-status">
+              <label>Status em tempo real</label>
+              <select [value]="serviceStatus()" (change)="serviceStatus.set($any($event.target).value)">
+                <option value="ativo">Ativo</option>
+                <option value="manutencao">Manutenção</option>
+                <option value="fechado">Fechado</option>
+              </select>
+            </div>
+            <div class="panel-status">
+              <label>Publicação</label>
+              <select [value]="servicePublishStatus()" (change)="servicePublishStatus.set($any($event.target).value)">
+                <option value="publicado">Publicado</option>
+                <option value="rascunho">Rascunho</option>
+              </select>
+            </div>
+            <div class="panel-section">
+              <h4><span class="material-icons">edit</span> Editar texto</h4>
+              <textarea placeholder="Descrição do serviço" rows="4">{{ editingService()?.descricaoCompleta }}</textarea>
+            </div>
+            <div class="panel-section">
+              <h4><span class="material-icons">schedule</span> Horários</h4>
+              <input type="text" [value]="editingService()?.horario" placeholder="Ex: 6h às 22h" />
+            </div>
+            <div class="panel-section">
+              <h4><span class="material-icons">place</span> Localização</h4>
+              <input type="text" [value]="editingService()?.localizacao" placeholder="Ex: Terraço 10º andar" />
+            </div>
+            <div class="panel-section">
+              <h4><span class="material-icons">photo_library</span> Imagens</h4>
+              <button type="button" class="btn-panel btn-outline">Trocar imagens</button>
+            </div>
+            @if (editingService(); as srv) {
+              <div class="panel-section service-specific">
+                <h4><span class="material-icons">extension</span> Ações do serviço</h4>
+                @switch (sid) {
+                  @case ('piscina') {
+                    <button type="button" class="btn-panel btn-outline">Marcar manutenção</button>
+                    <button type="button" class="btn-panel btn-outline">Fechar temporariamente</button>
                   }
-                  @if (detail.localizacao) {
-                    <div class="detail-row">
-                      <strong>📍 Localização:</strong> <span>{{ detail.localizacao }}</span>
-                    </div>
+                  @case ('academia') {
+                    <button type="button" class="btn-panel btn-outline">Marcar manutenção</button>
+                    <button type="button" class="btn-panel btn-outline">Registrar equipamento fora</button>
                   }
-                  @if (detail.capacidade) {
-                    <div class="detail-row">
-                      <strong>👥 Capacidade:</strong> <span>{{ detail.capacidade }}</span>
-                    </div>
+                  @case ('restaurante') {
+                    <button type="button" class="btn-panel btn-outline">Editar cardápio</button>
+                    <button type="button" class="btn-panel btn-outline">Bloquear reservas</button>
                   }
-                  @if (detail.preco) {
-                    <div class="detail-row">
-                      <strong>💰 Preço:</strong> <span>{{ detail.preco }}</span>
-                    </div>
+                  @case ('spa') {
+                    <button type="button" class="btn-panel btn-outline">Gerenciar agenda</button>
+                    <button type="button" class="btn-panel btn-outline">Bloquear horários</button>
                   }
-                  @if (detail.itensInclusos && detail.itensInclusos.length > 0) {
-                    <div class="detail-section">
-                      <strong>Inclui:</strong>
-                      <ul>
-                        @for (item of detail.itensInclusos; track item) {
-                          <li>{{ item }}</li>
-                        }
-                      </ul>
-                    </div>
+                  @case ('estacionamento') {
+                    <button type="button" class="btn-panel btn-outline">Atualizar capacidade</button>
+                    <button type="button" class="btn-panel btn-outline">Marcar lotado</button>
                   }
-                  @if (detail.contato) {
-                    <div class="detail-row contact">
-                      <strong>📞 Contato:</strong> <span>{{ detail.contato }}</span>
-                    </div>
+                  @case ('wifi') {
+                    <button type="button" class="btn-panel btn-outline">Atualizar senha</button>
+                    <button type="button" class="btn-panel btn-outline">Status da rede</button>
                   }
-                  <div class="service-images-count">
-                    <strong>📸 Imagens:</strong> {{ detail.imagens.length }} foto{{ detail.imagens.length > 1 ? 's' : '' }}
-                  </div>
-                </div>
-              } @else {
-                <p class="no-detail">Detalhes completos não disponíveis</p>
-              }
-              
-              <a [routerLink]="['/servicos', servico.id]" target="_blank" class="view-link">Ver página completa →</a>
+                  @case ('room-service') {
+                    <button type="button" class="btn-panel btn-outline">Editar menu</button>
+                    <button type="button" class="btn-panel btn-outline">Suspender serviço</button>
+                  }
+                  @case ('transfer') {
+                    <button type="button" class="btn-panel btn-outline">Gerenciar agenda</button>
+                    <button type="button" class="btn-panel btn-outline">Cancelar horários</button>
+                  }
+                  @case ('eventos') {
+                    <button type="button" class="btn-panel btn-outline">Editar pacotes</button>
+                    <button type="button" class="btn-panel btn-outline">Bloquear datas</button>
+                  }
+                  @default {
+                    <button type="button" class="btn-panel btn-outline">Opções do serviço</button>
+                  }
+                }
+              </div>
+            }
+            <div class="panel-actions">
+              <button type="button" class="btn-panel btn-primary" (click)="saveServiceEdits()">
+                <span class="material-icons">save</span> Salvar alterações
+              </button>
+              <button type="button" class="btn-panel btn-danger">
+                <span class="material-icons">delete_outline</span> Desativar serviço
+              </button>
+            </div>
+            <div class="panel-extra">
+              <p><span class="material-icons">history</span> Histórico de alterações</p>
+              <p><span class="material-icons">phone_android</span> Preview mobile</p>
+              <p><span class="material-icons">analytics</span> Analytics da página</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    } @else if (loading()) {
+      <div class="loading-wrap">
+        <p class="loading">Carregando...</p>
+      </div>
+    } @else if (tab() === 'dashboard') {
+      <section class="content-section">
+        <h2 class="section-title">Dashboard</h2>
+        <p class="section-desc">Visão geral do hotel</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="material-icons stat-icon">bed</span>
+            <span class="stat-value">{{ quartosOcupadosHoje() }}</span>
+            <span class="stat-label">Quartos ocupados hoje</span>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons stat-icon">login</span>
+            <span class="stat-value">{{ checkInsHoje() }}</span>
+            <span class="stat-label">Check-ins do dia</span>
+          </div>
+          <div class="stat-card highlight">
+            <span class="material-icons stat-icon">payments</span>
+            <span class="stat-value">{{ formatCurrency(receitaHoje()) }}</span>
+            <span class="stat-label">Receita do dia</span>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons stat-icon">trending_up</span>
+            <span class="stat-value">{{ taxaOcupacao() }}</span>
+            <span class="stat-label">Taxa de ocupação</span>
+          </div>
+        </div>
+        <div class="dashboard-summary">
+          <div class="summary-card">
+            <h3>Resumo geral</h3>
+            <ul>
+              <li><strong>{{ roomTotal() }}</strong> quartos cadastrados</li>
+              <li><strong>{{ resTotal() }}</strong> reservas no sistema</li>
+              <li><strong>{{ userTotal() }}</strong> usuários/hóspedes</li>
+            </ul>
+          </div>
+          <div class="summary-card">
+            <h3>Próximas reservas</h3>
+            @if (proximasReservas().length === 0) {
+              <p class="muted">Nenhuma reserva próxima.</p>
+            } @else {
+              <ul class="next-list">
+                @for (r of proximasReservas(); track r.id) {
+                  <li>
+                    <span>{{ r.roomNumero }}</span>
+                    <span>{{ r.userNome }}</span>
+                    <span>{{ formatDate(r.dataInicio) }} → {{ formatDate(r.dataFim) }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+        <div class="quick-actions">
+          <button type="button" class="btn-primary" (click)="setTab('rooms')">Gerenciar quartos</button>
+          <button type="button" class="btn-primary" (click)="setTab('reservations')">Ver reservas</button>
+          <button type="button" class="btn-primary" (click)="setTab('hospedes')">Ver hóspedes</button>
+        </div>
+      </section>
+    } @else if (tab() === 'perfil') {
+      @let p = adminProfile();
+      <section class="content-section profile-section">
+        <h2 class="section-title">Dados do administrador</h2>
+        <p class="section-desc">Informações do seu perfil e controle de acesso</p>
+
+        <div class="profile-grid">
+          <!-- Identificação -->
+          <div class="profile-block">
+            <h3 class="profile-block-title"><span class="material-icons">person</span> Identificação</h3>
+            <ul class="profile-list">
+              <li><strong>Nome completo</strong> {{ p.nomeCompleto }}</li>
+              <li><strong>ID do administrador</strong> {{ p.idAdministrador }}</li>
+              <li><strong>Cargo</strong> {{ p.cargo }}</li>
+              <li><strong>Departamento</strong> {{ p.departamento }}</li>
+            </ul>
+          </div>
+
+          <!-- Contato -->
+          <div class="profile-block">
+            <h3 class="profile-block-title"><span class="material-icons">mail</span> Contato</h3>
+            <ul class="profile-list">
+              <li><strong>Email corporativo</strong> {{ p.email }}</li>
+              <li><strong>Telefone interno</strong> {{ p.telefoneInterno }}</li>
+              <li><strong>Ramal</strong> {{ p.ramal }}</li>
+              <li><strong>Telefone móvel</strong> {{ p.telefoneMovel }}</li>
+            </ul>
+          </div>
+
+          <!-- Segurança -->
+          <div class="profile-block">
+            <h3 class="profile-block-title"><span class="material-icons">security</span> Segurança</h3>
+            <ul class="profile-list">
+              <li><strong>Nível de permissão</strong> {{ p.nivelPermissao }}</li>
+              <li><strong>Último login</strong> {{ p.ultimoLogin }}</li>
+              <li><strong>Sessões ativas</strong> {{ p.sessoesAtivas }}</li>
+            </ul>
+            <div class="profile-actions">
+              <button type="button" class="btn-panel btn-outline"><span class="material-icons">lock_reset</span> Alterar senha</button>
+              <button type="button" class="btn-panel btn-outline"><span class="material-icons">phonelink_lock</span> Autenticação em dois fatores (2FA)</button>
             </div>
           </div>
-        }
-      </div>
-      
-      <div class="services-summary">
-        <h3>Resumo</h3>
-        <p><strong>Total de serviços cadastrados:</strong> {{ hotel.servicos.length }}</p>
-        <p><strong>Serviços com detalhes completos:</strong> {{ serviceDetails.length }}</p>
-      </div>
-    </div>
-  }
 
-  @if (tab() !== 'inicio' && (roomTotal() > pageSize || resTotal() > pageSize || userTotal() > pageSize)) {
-    <div class="pagination">
-      <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
-      <span>Página {{ page() }} de {{ totalPages() }}</span>
-      <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
-    </div>
-  }
+          <!-- Atividade -->
+          <div class="profile-block">
+            <h3 class="profile-block-title"><span class="material-icons">schedule</span> Atividade</h3>
+            <ul class="profile-list">
+              <li><strong>Data de criação da conta</strong> {{ p.dataCriacaoConta }}</li>
+              <li><strong>Última atualização</strong> {{ p.ultimaAtualizacao }}</li>
+            </ul>
+            <div class="profile-log">
+              <strong>Log de ações recentes</strong>
+              <ul>
+                @for (item of p.logRecente; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+            <button type="button" class="btn-panel btn-outline btn-sm"><span class="material-icons">history</span> Histórico de alterações</button>
+          </div>
+
+          <!-- Preferências -->
+          <div class="profile-block">
+            <h3 class="profile-block-title"><span class="material-icons">tune</span> Preferências</h3>
+            <ul class="profile-list">
+              <li><strong>Idioma do sistema</strong> {{ p.idioma }}</li>
+              <li><strong>Tema</strong> {{ p.tema }}</li>
+              <li><strong>Notificações</strong> {{ p.notificacoes }}</li>
+              <li><strong>Fuso horário</strong> {{ p.fusoHorario }}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    } @else if (tab() === 'rooms') {
+      <section class="content-section">
+        <h2 class="section-title">Gestão de quartos</h2>
+        <p class="section-desc">Lista de quartos, tipo, preço, disponibilidade e status</p>
+        @if (auth.isAdmin() || auth.isGerente()) {
+          <div class="form-card">
+            <h3>Cadastrar quarto</h3>
+            @if (roomError()) {
+              <p class="error">{{ roomError() }}</p>
+            }
+            <form [formGroup]="roomForm" (ngSubmit)="createRoom()">
+              <input formControlName="numero" placeholder="Número (ex: 101)" />
+              <select formControlName="tipo">
+                <option value="Standard">Standard</option>
+                <option value="Luxo">Luxo</option>
+                <option value="Suíte">Suíte</option>
+              </select>
+              <input type="number" formControlName="precoDiaria" placeholder="Preço/dia" min="1" step="0.01" />
+              <button type="submit" class="btn-primary">Cadastrar</button>
+            </form>
+          </div>
+        }
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Tipo</th>
+                <th>Preço/dia</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of rooms(); track r.id) {
+                <tr>
+                  <td>{{ r.numero }}</td>
+                  <td>{{ r.tipo }}</td>
+                  <td>{{ formatCurrency(r.precoDiaria) }}</td>
+                  <td><span class="badge" [class.badge-blocked]="r.bloqueado">{{ r.bloqueado ? 'Manutenção' : 'Disponível' }}</span></td>
+                  <td>
+                    @if (auth.isAdmin() || auth.isGerente()) {
+                      <button type="button" class="btn-sm" (click)="toggleBlock(r)">
+                        {{ r.bloqueado ? 'Desbloquear' : 'Bloquear' }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (tab() === 'reservations') {
+      <section class="content-section">
+        <h2 class="section-title">Gestão de reservas</h2>
+        <p class="section-desc">Reservas ativas, histórico e status</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Quarto</th>
+                <th>Hóspede</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of reservations(); track r.id) {
+                <tr>
+                  <td>{{ r.roomNumero }}</td>
+                  <td>{{ r.userNome }}</td>
+                  <td>{{ formatDate(r.dataInicio) }}</td>
+                  <td>{{ formatDate(r.dataFim) }}</td>
+                  <td><span class="badge">{{ r.status }}</span></td>
+                  <td>{{ r.precoTotal != null ? formatCurrency(r.precoTotal) : '–' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (tab() === 'financeiro') {
+      <section class="content-section">
+        <h2 class="section-title">Financeiro</h2>
+        <p class="section-desc">Pagamentos, reservas pendentes, reembolsos e relatórios</p>
+        <div class="coming-soon">
+          <span class="material-icons coming-icon">payments</span>
+          <h3>Em breve</h3>
+          <p>Módulo de pagamentos recebidos, reservas pendentes, reembolsos e relatórios de faturamento.</p>
+        </div>
+      </section>
+    } @else if (tab() === 'spa') {
+      <section class="content-section">
+        <h2 class="section-title">Gestão do Spa</h2>
+        <p class="section-desc">Agenda de tratamentos, horários, terapeutas e pacotes promocionais</p>
+        <div class="coming-soon">
+          <span class="material-icons coming-icon">spa</span>
+          <h3>Em breve</h3>
+          <p>Gestão de agenda, horários disponíveis e reservas de spa. Enquanto isso, use o site para agendamentos.</p>
+          <a routerLink="/spa/agendar" class="btn-primary" target="_blank">Abrir agendamento Spa →</a>
+        </div>
+      </section>
+    } @else if (tab() === 'hospedes') {
+      <section class="content-section">
+        <h2 class="section-title">Gestão de hóspedes</h2>
+        <p class="section-desc">Lista de clientes, histórico de estadias e contato</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Perfil</th>
+                <th>Cadastro</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of users(); track u.id) {
+                <tr>
+                  <td>{{ u.nome }}</td>
+                  <td>{{ u.email }}</td>
+                  <td><span class="badge">{{ u.role }}</span></td>
+                  <td>{{ formatDate(u.createdAt) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (tab() === 'avaliacoes') {
+      <section class="content-section">
+        <h2 class="section-title">Avaliações</h2>
+        <p class="section-desc">Feedback dos hóspedes, notas e respostas do hotel</p>
+        <div class="coming-soon">
+          <span class="material-icons coming-icon">star</span>
+          <h3>Em breve</h3>
+          <p>Módulo de avaliações e respostas.</p>
+        </div>
+      </section>
+    } @else if (tab() === 'configuracoes') {
+      <section class="content-section">
+        <h2 class="section-title">Configurações do hotel</h2>
+        <p class="section-desc">Serviços, políticas, horários e informações do site</p>
+        <div class="services-admin">
+          <div class="services-grid-admin">
+            @for (servico of hotel.servicos; track servico.titulo) {
+              @let detail = getServiceDetail(servico.id);
+              <div class="service-card-admin">
+                <div class="service-header-admin">
+                  <span class="material-icons service-icon-admin">{{ getServiceMaterialIcon(servico.id) }}</span>
+                  <h3>{{ servico.titulo }}</h3>
+                </div>
+                <div class="service-body-admin">
+                  <p class="service-desc-admin">{{ servico.desc }}</p>
+                  @if (detail) {
+                    <div class="service-details-admin">
+                      @if (detail.horario) {
+                        <div class="detail-row"><strong>Horário</strong> <span>{{ detail.horario }}</span></div>
+                      }
+                      @if (detail.localizacao) {
+                        <div class="detail-row"><strong>Localização</strong> <span>{{ detail.localizacao }}</span></div>
+                      }
+                      @if (detail.preco) {
+                        <div class="detail-row"><strong>Preço</strong> <span>{{ detail.preco }}</span></div>
+                      }
+                    </div>
+                  }
+                  <button type="button" class="view-link btn-ver-pagina" (click)="openServiceEdit(servico.id)">
+                    <span class="material-icons">visibility</span> Ver página
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="services-summary">
+            <p><strong>Total de serviços:</strong> {{ hotel.servicos.length }}</p>
+          </div>
+        </div>
+      </section>
+    } @else if (tab() === 'colaboradores') {
+      <section class="content-section">
+        <h2 class="section-title">Adicionar colaborador</h2>
+        <p class="section-desc">Cadastre colaboradores e defina o nível de acesso</p>
+        <div class="form-card">
+          @if (collabError()) {
+            <p class="error">{{ collabError() }}</p>
+          }
+          <form [formGroup]="collabForm" (ngSubmit)="createCollaborator()">
+            <input formControlName="nome" placeholder="Nome completo" />
+            <input formControlName="email" type="email" placeholder="Email corporativo" />
+            <input formControlName="senha" type="password" placeholder="Senha (mín. 6 caracteres)" />
+            <select formControlName="nivel">
+              <option value="">Selecione o nível</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Recepcionista">Recepcionista</option>
+            </select>
+            <button type="submit" class="btn-primary">Adicionar colaborador</button>
+          </form>
+          <div class="niveis-info">
+            <h3>Níveis de acesso</h3>
+            <ul>
+              <li><strong>Gerente:</strong> Gerenciar quartos, ver reservas e usuários.</li>
+              <li><strong>Recepcionista:</strong> Ver reservas, bloquear/desbloquear quartos.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    } @else if (tab() === 'seguranca') {
+      <section class="content-section">
+        <h2 class="section-title">Segurança</h2>
+        <p class="section-desc">Controle de acesso, log de ações e autenticação</p>
+        <div class="coming-soon">
+          <span class="material-icons coming-icon">lock</span>
+          <h3>Em breve</h3>
+          <p>Log de ações, troca de senha e configurações de autenticação.</p>
+        </div>
+      </section>
+    }
+
+    @if (['rooms', 'reservations', 'hospedes'].includes(tab()) && (roomTotal() > pageSize || resTotal() > pageSize || userTotal() > pageSize)) {
+      <div class="pagination">
+        <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
+        <span>Página {{ page() }} de {{ totalPages() }}</span>
+        <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
+      </div>
+    }
+  </main>
 </div>

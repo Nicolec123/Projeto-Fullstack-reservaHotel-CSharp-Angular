@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, Room } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SPA_ADDONS, SpaAddOn } from '../../../core/constants/spa-addons';
+import { SPA_BOOKING_PACKAGES, SpaBookingPackage, calculateSpaPackagePrice } from '../../../core/constants/spa-booking-packages';
+
 import { getRoomImageUrl } from '../../../core/constants/room-images';
 
 @Component({
@@ -22,9 +24,13 @@ export class SimularComponent {
   room = signal<Room | null>(null);
   loading = signal(true);
   selectedSpa = signal<SpaAddOn | null>(null);
+  selectedPackage = signal<SpaBookingPackage | null>(null);
+  packageNumPessoas = signal(1);
 
   readonly spaOptions = SPA_ADDONS;
+  readonly spaPackages = SPA_BOOKING_PACKAGES;
   readonly getRoomImageUrl = getRoomImageUrl;
+  readonly calculateSpaPackagePrice = calculateSpaPackagePrice;
 
   roomId = computed(() => Number(this.route.snapshot.paramMap.get('id')));
 
@@ -32,8 +38,11 @@ export class SimularComponent {
   totalSimulacao = computed(() => {
     const r = this.room();
     const spa = this.selectedSpa();
+    const pkg = this.selectedPackage();
     if (!r) return 0;
-    return Number(r.precoDiaria) + (spa ? spa.preco : 0);
+    const spaValor = spa ? spa.preco : 0;
+    const packageValor = pkg ? calculateSpaPackagePrice(pkg.id, this.packageNumPessoas()) : 0;
+    return Number(r.precoDiaria) + spaValor + packageValor;
   });
 
   ngOnInit() {
@@ -51,18 +60,55 @@ export class SimularComponent {
 
   selectSpa(spa: SpaAddOn | null) {
     this.selectedSpa.set(spa);
+    if (spa) {
+      this.selectedPackage.set(null);
+    }
+  }
+
+  selectPackage(pkg: SpaBookingPackage | null) {
+    this.selectedPackage.set(pkg);
+    if (pkg) {
+      this.selectedSpa.set(null);
+      this.packageNumPessoas.set(pkg.pessoasIncluidas);
+    }
+  }
+
+  updatePackagePessoas(num: number) {
+    const pkg = this.selectedPackage();
+    if (pkg && pkg.pessoasMaximas && num > pkg.pessoasMaximas) {
+      return;
+    }
+    if (pkg && num < pkg.pessoasIncluidas) {
+      return;
+    }
+    this.packageNumPessoas.set(num);
   }
 
   irParaReserva() {
     const r = this.room();
     if (!r || r.bloqueado) return;
     const spa = this.selectedSpa();
-    const returnUrl = spa ? `/reservar/${r.id}?spa=${spa.id}` : `/reservar/${r.id}`;
+    const pkg = this.selectedPackage();
+    const queryParams: any = {};
+    if (spa) {
+      queryParams.spa = spa.id;
+    } else if (pkg) {
+      queryParams.spaPackage = pkg.id;
+      queryParams.spaPessoas = this.packageNumPessoas();
+    }
+    const returnUrl = `/reservar/${r.id}${Object.keys(queryParams).length > 0 ? '?' + new URLSearchParams(queryParams).toString() : ''}`;
     if (this.auth.isLoggedIn() && !this.auth.isAdmin()) {
-      this.router.navigate(['/reservar', r.id], { queryParams: spa ? { spa: spa.id } : {} });
+      this.router.navigate(['/reservar', r.id], { queryParams });
     } else if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl } });
     }
+  }
+
+  formatarPreco(valor: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
   }
 
   apenasQuarto() {

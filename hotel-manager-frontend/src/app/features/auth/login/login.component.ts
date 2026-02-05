@@ -28,7 +28,8 @@ export class LoginComponent {
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    senha: ['', Validators.required]
+    senha: ['', Validators.required],
+    lembrarDeMim: [false]
   });
 
   submit() {
@@ -36,8 +37,21 @@ export class LoginComponent {
     this.error = '';
     this.loading = true;
     const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/quartos';
-    this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl(returnUrl),
+    const isAdmin = this.isAdminLogin();
+    const body = {
+      email: this.form.getRawValue().email,
+      senha: this.form.getRawValue().senha,
+      lembrarDeMim: isAdmin ? false : this.form.getRawValue().lembrarDeMim
+    };
+    this.auth.login(body, isAdmin).subscribe({
+      next: () => {
+        const user = this.auth.currentUser();
+        if (user && ['Admin', 'Gerente', 'Recepcionista'].includes(user.role)) {
+          this.router.navigateByUrl('/admin');
+        } else {
+          this.router.navigateByUrl(returnUrl);
+        }
+      },
       error: (err) => {
         this.error = err.error?.message || 'Email ou senha inválidos.';
         this.loading = false;

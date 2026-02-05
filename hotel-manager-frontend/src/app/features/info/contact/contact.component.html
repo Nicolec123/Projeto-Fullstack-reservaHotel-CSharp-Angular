@@ -1,70 +1,113 @@
-<div class="page-container">
-  <a routerLink="/" class="back">← Voltar</a>
-  <h1>Contato</h1>
-  <p class="subtitle">Estamos à disposição para ajudá-lo</p>
-
-  <div class="contact-grid">
-    <div class="contact-info">
-      <div class="info-item">
-        <span class="icon">📍</span>
-        <div>
-          <strong>Endereço</strong>
-          <p>{{ hotel.endereco }}<br>{{ hotel.cidade }}</p>
-        </div>
-      </div>
-      <div class="info-item">
-        <span class="icon">📞</span>
-        <div>
-          <strong>Telefone</strong>
-          <p>{{ hotel.telefone }}</p>
-        </div>
-      </div>
-      <div class="info-item">
-        <span class="icon">✉️</span>
-        <div>
-          <strong>E-mail</strong>
-          <p>{{ hotel.email }}</p>
-        </div>
-      </div>
-      <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn-whatsapp">💬 WhatsApp</a>
+<div class="contact-page">
+  <!-- Hero Section com imagem do hotel -->
+  <section class="contact-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h1>Contato</h1>
+      <p class="hero-subtitle">Estamos à disposição para ajudá-lo</p>
     </div>
-    <div class="contact-form">
-      @if (enviado) {
-        <div class="success-msg">Mensagem enviada! Entraremos em contato em breve.</div>
-      } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <label>
-            <span>Nome</span>
-            <input type="text" formControlName="nome" />
-          </label>
-          <label>
-            <span>E-mail</span>
-            <input type="email" formControlName="email" />
-          </label>
-          <label>
-            <span>Assunto</span>
-            <input type="text" formControlName="assunto" />
-          </label>
-          <label>
-            <span>Mensagem</span>
-            <textarea formControlName="mensagem" rows="4"></textarea>
-          </label>
-          <button type="submit" [disabled]="form.invalid">Enviar</button>
-        </form>
-      }
-    </div>
-  </div>
+  </section>
 
-  <div class="map-section">
-    <h2>Localização</h2>
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1974878984444!2d-46.653789!3d-23.5515497!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce582c4835016d%3A0x929f3234d50e7d!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1234567890"
-      width="100%"
-      height="300"
-      style="border:0; border-radius: 12px;"
-      allowfullscreen=""
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      title="Localização do hotel"></iframe>
+  <div class="page-container">
+    <!-- Informações de contato e formulário -->
+    <section class="contact-section">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h2>Entre em contato</h2>
+          <p class="info-description">Nossa equipe está pronta para atendê-lo com excelência e cuidado.</p>
+          
+          <div class="info-cards">
+            <div class="info-card">
+              <div class="card-icon">📍</div>
+              <div class="card-content">
+                <strong>Endereço</strong>
+                <p>{{ hotel.endereco }}<br>{{ hotel.cidade }}</p>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="card-icon">📞</div>
+              <div class="card-content">
+                <strong>Telefone</strong>
+                <p>{{ hotel.telefone }}</p>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="card-icon">✉️</div>
+              <div class="card-content">
+                <strong>E-mail</strong>
+                <p>{{ hotel.email }}</p>
+              </div>
+            </div>
+          </div>
+
+          <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn-whatsapp">
+            <span class="whatsapp-icon">💬</span>
+            <span>Falar no WhatsApp</span>
+          </a>
+        </div>
+
+        <div class="contact-form-wrapper">
+          <div class="form-header">
+            <h2>Envie sua mensagem</h2>
+            <p>Preencha o formulário abaixo e retornaremos em breve</p>
+          </div>
+          
+          @if (enviado) {
+            <div class="success-msg">
+              <div class="success-icon">✓</div>
+              <div>
+                <strong>Mensagem enviada!</strong>
+                <p>Entraremos em contato em breve.</p>
+              </div>
+            </div>
+          } @else {
+            <form [formGroup]="form" (ngSubmit)="submit()" class="contact-form">
+              <label>
+                <span>Nome</span>
+                <input type="text" formControlName="nome" placeholder="Seu nome completo" />
+              </label>
+              <label>
+                <span>E-mail</span>
+                <input type="email" formControlName="email" placeholder="seu@email.com" />
+              </label>
+              <label>
+                <span>Assunto</span>
+                <input type="text" formControlName="assunto" placeholder="Assunto da mensagem" />
+              </label>
+              <label>
+                <span>Mensagem</span>
+                <textarea formControlName="mensagem" rows="5" placeholder="Escreva sua mensagem aqui..."></textarea>
+              </label>
+              <button type="submit" [disabled]="form.invalid" class="btn-submit">
+                <span>Enviar mensagem</span>
+                <span class="arrow">→</span>
+              </button>
+            </form>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Mapa de localização -->
+    <section class="map-section">
+      <div class="map-header">
+        <h2>Nossa localização</h2>
+        <p>Venha nos visitar! Estamos no coração da cidade</p>
+      </div>
+      <div class="map-wrapper">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1974878984444!2d-46.653789!3d-23.5515497!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce582c4835016d%3A0x929f3234d50e7d!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1234567890"
+          width="100%"
+          height="450"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Localização do hotel"></iframe>
+      </div>
+    </section>
   </div>
 </div>

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {}
+    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
+    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "projectUniqueName": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
         "projectName": "HotelManager.API",
-        "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "projectPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
         "packagesPath": "C:\\Users\\ncruz\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
+        "outputPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ncruz\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -72,6 +72,18 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.11, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            },
+            "Serilog.Enrichers.Environment": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             }
           },
           "imports": [

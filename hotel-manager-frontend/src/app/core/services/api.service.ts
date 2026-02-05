@@ -109,4 +109,8 @@ export class ApiService {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
     return this.http.get<PagedResult<User>>(`${API_URL}/admin/users`, { params });
   }
+
+  createCollaborator(body: { nome: string; email: string; senha: string; nivel: string }) {
+    return this.http.post<User>(`${API_URL}/admin/collaborators`, body);
+  }
 }

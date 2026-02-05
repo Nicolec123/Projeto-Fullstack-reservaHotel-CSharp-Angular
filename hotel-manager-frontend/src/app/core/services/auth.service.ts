@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { tap, catchError, of } from 'rxjs';
 import { API_URL } from '../constants/api';
 
 export interface AuthResponse {
@@ -9,13 +9,17 @@ export interface AuthResponse {
   email: string;
   nome: string;
   role: string;
+  tipo?: string;
   userId: number;
   expiresAt: string;
+  refreshToken?: string;
+  refreshTokenExpiresAt?: string;
 }
 
 export interface LoginRequest {
   email: string;
   senha: string;
+  lembrarDeMim?: boolean;
 }
 
 export interface RegisterRequest {
@@ -41,6 +45,7 @@ export interface RegisterRequest {
 
 const TOKEN_KEY = 'hotel_token';
 const USER_KEY = 'hotel_user';
+const REFRESH_TOKEN_KEY = 'hotel_refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -50,6 +55,13 @@ export class AuthService {
   private userSignal = signal<AuthResponse | null>(this.loadStoredUser());
   currentUser = this.userSignal.asReadonly();
   isAdmin = computed(() => this.userSignal()?.role === 'Admin');
+  /** Colaboradores: Admin, Gerente, Recepcionista - acessam o painel */
+  isStaff = computed(() => ['Admin', 'Gerente', 'Recepcionista'].includes(this.userSignal()?.role ?? ''));
+  isGerente = computed(() => this.userSignal()?.role === 'Gerente');
+  /** Hóspede (User): vê "Minhas reservas", pode reservar */
+  isHospede = computed(() => this.userSignal()?.role === 'User');
+  /** tipo: guest = hóspede, admin = painel administrativo */
+  isGuest = computed(() => this.userSignal()?.tipo === 'guest');
   isLoggedIn = computed(() => !!this.userSignal()?.token);
 
   private loadStoredUser(): AuthResponse | null {
@@ -67,10 +79,26 @@ export class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 
-  login(body: LoginRequest) {
+  /** Login de hóspede — /api/auth/login. lembrarDeMim = refresh token longo (7–30 dias). */
+  loginGuest(body: LoginRequest) {
     return this.http.post<AuthResponse>(`${API_URL}/auth/login`, body).pipe(
       tap((res) => this.setSession(res))
     );
+  }
+
+  /** Login de admin/staff — /api/admin/login. Sessão curta. */
+  loginAdmin(body: LoginRequest) {
+    return this.http.post<AuthResponse>(`${API_URL}/admin/login`, body).pipe(
+      tap((res) => this.setSession(res))
+    );
+  }
+
+  /** Login unificado — usa guest ou admin conforme returnUrl. */
+  login(body: LoginRequest, isAdminLogin: boolean) {
+    if (isAdminLogin) {
+      return this.loginAdmin(body);
+    }
+    return this.loginGuest(body);
   }
 
   register(body: RegisterRequest) {
@@ -79,16 +107,45 @@ export class AuthService {
     );
   }
 
+  /** Renovar access token usando refresh token (hóspede com Lembrar de mim). */
+  refreshToken() {
+    const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!refresh) return of(null);
+    return this.http.post<AuthResponse>(`${API_URL}/auth/refresh`, { refreshToken: refresh } as { refreshToken: string }).pipe(
+      tap((res) => {
+        if (res) this.setSession(res);
+      }),
+      catchError(() => {
+        this.clearSession();
+        return of(null);
+      })
+    );
+  }
+
   private setSession(res: AuthResponse) {
     localStorage.setItem(TOKEN_KEY, res.token);
     localStorage.setItem(USER_KEY, JSON.stringify(res));
+    if (res.refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
+    } else {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
     this.userSignal.set(res);
   }
 
-  logout() {
+  private clearSession() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     this.userSignal.set(null);
+  }
+
+  logout() {
+    const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (refresh) {
+      this.http.post(`${API_URL}/auth/logout`, { refreshToken: refresh }).subscribe();
+    }
+    this.clearSession();
     this.router.navigate(['/login']);
   }
 }

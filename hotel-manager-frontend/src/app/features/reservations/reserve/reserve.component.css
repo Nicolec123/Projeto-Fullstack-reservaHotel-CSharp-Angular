@@ -849,6 +849,7 @@
   padding: 1.25rem;
   border: 2px solid var(--color-border);
   border-radius: var(--radius);
+  background: var(--color-bg);
   transition: all 0.2s;
 }
 
@@ -880,6 +881,57 @@
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
+}
+
+.card-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.card-form label:last-of-type {
+  margin-bottom: 0;
+}
+
+.card-form label span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.card-form input {
+  padding: 0.875rem 1.125rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.card-form input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.card-form input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.card-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-form .form-row label {
+  margin-bottom: 0;
 }
 
 .payment-info {

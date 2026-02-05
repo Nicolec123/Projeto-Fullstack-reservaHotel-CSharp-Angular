@@ -44,7 +44,7 @@ public class RoomsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Gerente")]
     public async Task<ActionResult<RoomDto>> Create([FromBody] CreateRoomRequest request, CancellationToken ct)
     {
         var room = await _roomService.CreateAsync(request, ct);
@@ -53,7 +53,7 @@ public class RoomsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Gerente,Recepcionista")]
     public async Task<ActionResult<RoomDto>> Update(int id, [FromBody] UpdateRoomRequest request, CancellationToken ct)
     {
         var room = await _roomService.UpdateAsync(id, request, ct);

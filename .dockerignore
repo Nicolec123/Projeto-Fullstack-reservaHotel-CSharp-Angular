@@ -1,0 +1,15 @@
+**/.git
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/.vs
+**/*.user
+**/logs
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/coverage
+**/.angular
+**/cypress/videos
+**/cypress/screenshots

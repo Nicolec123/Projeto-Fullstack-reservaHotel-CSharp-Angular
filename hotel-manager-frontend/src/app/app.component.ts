@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 import { FooterComponent } from './shared/footer/footer.component';
 
@@ -10,9 +11,24 @@ import { FooterComponent } from './shared/footer/footer.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private sub: any;
+
+  /** Esconde o footer na rota do painel admin */
+  isAdminRoute = signal(false);
+
+  ngOnInit(): void {
+    this.isAdminRoute.set(this.router.url.startsWith('/admin'));
+    this.sub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.isAdminRoute.set(this.router.url.startsWith('/admin')));
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
 
   /** Login vindo do Admin: mostra menu simplificado (sem Entrar/Admin) */
   get isAdminLoginFlow(): boolean {

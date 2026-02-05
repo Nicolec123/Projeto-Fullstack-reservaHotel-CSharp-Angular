@@ -6,7 +6,11 @@ public class User
     public string Nome { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string SenhaHash { get; set; } = string.Empty;
-    public string Role { get; set; } = "User"; // Admin | User (Hóspede)
+    public string Role { get; set; } = "User"; // Admin | Gerente | Recepcionista | User (Hóspede)
+    public bool Ativo { get; set; } = true;
+    public DateTime? UltimoLogin { get; set; }
+    public bool TwoFactorEnabled { get; set; }
+    public int? HotelId { get; set; } // multi-hotel: futuro
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Dados essenciais

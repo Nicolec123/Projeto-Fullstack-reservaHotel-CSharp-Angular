@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "dgSpecHash": "Jl9jcAbrw9k=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'coverlet.collector' da origem remota 'https://api.nuget.org/v3-flatcontainer/coverlet.collector/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'xunit.runner.visualstudio' da origem remota 'https://api.nuget.org/v3-flatcontainer/xunit.runner.visualstudio/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'xunit' da origem remota 'https://api.nuget.org/v3-flatcontainer/xunit/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'Moq' da origem remota 'https://api.nuget.org/v3-flatcontainer/moq/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Falha ao recuperar informações sobre 'Microsoft.NET.Test.Sdk' da origem remota 'https://api.nuget.org/v3-flatcontainer/microsoft.net.test.sdk/index.json'.\r\n  The SSL connection could not be established, see inner exception.\r\n  Authentication failed, see inner exception.\r\n  Credenciais não disponíveis no pacote de segurança",
+      "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "filePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+      "targetGraphs": []
+    }
+  ]
+}
