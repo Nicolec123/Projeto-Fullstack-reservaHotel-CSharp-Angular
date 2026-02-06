@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
@@ -17,6 +17,9 @@ export class SpaBookingComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   readonly auth = inject(AuthService);
+
+  /** Quando true, exibido dentro do painel admin (link "Voltar" vai para o painel) */
+  isAdminContext = input<boolean>(false);
 
   readonly packages = SPA_BOOKING_PACKAGES;
   selectedPackage = signal<SpaBookingPackage | null>(null);

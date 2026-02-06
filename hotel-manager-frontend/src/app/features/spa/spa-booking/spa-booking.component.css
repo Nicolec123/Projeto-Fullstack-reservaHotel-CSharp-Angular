@@ -996,3 +996,19 @@
   0%, 100% { transform: scale(1); opacity: 0.3; }
   50% { transform: scale(1.1); opacity: 0.5; }
 }
+
+/* Dentro do painel admin */
+.spa-booking-page.spa-booking-admin {
+  min-height: auto;
+  background: transparent;
+}
+
+.spa-booking-admin .back-link {
+  color: var(--color-accent);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+}
+
+.spa-booking-admin .back-link:hover {
+  background: var(--color-accent-soft);
+}

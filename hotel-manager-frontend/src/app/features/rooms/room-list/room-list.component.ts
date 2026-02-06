@@ -1,9 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { FlatpickrModule } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { ApiService, Room } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SearchService } from '../../../core/services/search.service';
@@ -15,7 +12,7 @@ import { getWhatsAppUrl } from '../../../core/constants/contact';
 @Component({
   selector: 'app-room-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, FlatpickrModule, SearchBarComponent],
+  imports: [CommonModule, RouterLink, SearchBarComponent],
   templateUrl: './room-list.component.html',
   styleUrl: './room-list.component.css'
 })
@@ -39,15 +36,6 @@ export class RoomListComponent {
   checkAvailability = signal(false);
 
   totalPages = computed(() => Math.ceil(this.total() / this.pageSize) || 1);
-
-  flatpickrOptions = {
-    dateFormat: 'Y-m-d',
-    altInput: true,
-    altFormat: 'd/m/Y',
-    locale: Portuguese,
-    allowInput: false,
-    disableMobile: true
-  };
 
   ngOnInit() {
     const buscar = this.route.snapshot.queryParams['buscar'];
@@ -81,18 +69,6 @@ export class RoomListComponent {
         error: () => this.loading.set(false)
       });
     }
-  }
-
-  searchByDate() {
-    this.checkAvailability.set(true);
-    this.load();
-  }
-
-  clearDates() {
-    this.dataInicio.set('');
-    this.dataFim.set('');
-    this.checkAvailability.set(false);
-    this.load();
   }
 
   goPage(p: number) {

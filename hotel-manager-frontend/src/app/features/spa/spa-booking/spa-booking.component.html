@@ -1,6 +1,10 @@
-<div class="spa-booking-page">
+<div class="spa-booking-page" [class.spa-booking-admin]="isAdminContext()">
   <div class="booking-container">
-    <a routerLink="/sobre" class="back-link">← Voltar</a>
+    @if (isAdminContext()) {
+      <a routerLink="/admin" class="back-link">← Voltar ao painel</a>
+    } @else {
+      <a routerLink="/sobre" class="back-link">← Voltar</a>
+    }
 
     <div class="steps-indicator">
       <div class="step-item" [class.active]="step() >= 1" [class.done]="step() > 1">

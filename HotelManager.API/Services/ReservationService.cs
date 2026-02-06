@@ -46,21 +46,30 @@ public class ReservationService : IReservationService
         return (list.Select(MapToDto).ToList(), total);
     }
 
-    public async Task<ReservationDto?> CreateAsync(int userId, CreateReservationRequest request, CancellationToken ct = default)
+    public async Task<CreateReservationResult> CreateAsync(int userId, CreateReservationRequest request, CancellationToken ct = default)
     {
         if (request.DataInicio >= request.DataFim)
-            return null;
+            return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.InvalidDates };
 
         if (request.DataInicio.Date < DateTime.UtcNow.Date)
-            return null;
+            return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.InvalidDates };
 
         var room = await _roomRepo.GetByIdAsync(request.RoomId, ct);
         if (room == null || room.Bloqueado)
-            return null;
+            return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.RoomUnavailable };
 
-        var hasConflict = await _reservationRepo.HasConflictAsync(request.RoomId, request.DataInicio, request.DataFim, null, ct);
+        // Normaliza para comparação por dia (evita fuso/meia-noite)
+        var dataInicio = request.DataInicio.Date;
+        var dataFim = request.DataFim.Date;
+
+        var hasConflict = await _reservationRepo.HasConflictAsync(request.RoomId, dataInicio, dataFim, null, ct);
         if (hasConflict)
-            return null;
+            return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.RoomConflict };
+
+        // Mesmo usuário não pode ter duas reservas que compartilhem qualquer dia (ex.: 06–11 e 06–12 são sobrepostas)
+        var overlappingIds = await _reservationRepo.GetUserOverlappingIdsAsync(userId, dataInicio, dataFim, null, ct);
+        if (overlappingIds.Count > 0)
+            return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.UserOverlap, OverlappingReservationIds = overlappingIds };
 
         // Calcula valor total
         var dias = (request.DataFim - request.DataInicio).Days;
@@ -94,7 +103,8 @@ public class ReservationService : IReservationService
                     "boleto" => "Aguardando",
                     _ => "Pendente"
                 };
-                statusReserva = statusPagamento == "Pago" ? "Confirmada" : "Pendente";
+                // Em homologação: cartão = Pago/Confirmada; PIX e Boleto = Confirmada (quarto bloqueado) com pagamento Aguardando
+                statusReserva = "Confirmada";
             }
             else
             {
@@ -142,26 +152,77 @@ public class ReservationService : IReservationService
 
         reservation = await _reservationRepo.CreateAsync(reservation, ct);
         var created = await _reservationRepo.GetByIdAsync(reservation.Id, ct);
-        
+
         // Envia email de confirmação
         if (created != null)
         {
             _ = Task.Run(async () => await _emailService.SendReservationConfirmationAsync(created, ct));
         }
 
-        return created == null ? null : MapToDto(created);
+        return new CreateReservationResult
+        {
+            Success = true,
+            Reservation = created != null ? MapToDto(created) : null,
+            FailureReason = CreateReservationFailureReason.None
+        };
     }
 
-    public async Task<ReservationDto?> CancelAsync(int id, int userId, bool isAdmin, CancellationToken ct = default)
+    /// <summary>
+    /// Regra: cancelamento gratuito até 48 horas antes do check-in. Após esse período, cobrança de 1 diária.
+    /// </summary>
+    public async Task<CancellationInfoDto?> GetCancellationInfoAsync(int id, int? userId, bool isAdmin, CancellationToken ct = default)
     {
         var res = await _reservationRepo.GetByIdAsync(id, ct);
         if (res == null) return null;
         if (!isAdmin && res.UserId != userId) return null;
-        if (res.Status == "Cancelada") return MapToDto(res);
+        if (res.Status == "Cancelada") return null;
+
+        var checkIn = res.DataInicio;
+        var limiteGratuito = checkIn.AddHours(-48);
+        var agora = DateTime.UtcNow;
+        var aplicaTaxa = agora > limiteGratuito;
+        var valorTaxa = aplicaTaxa && res.Room != null ? res.Room.PrecoDiaria : 0;
+
+        return new CancellationInfoDto
+        {
+            AplicaTaxa = aplicaTaxa,
+            ValorTaxa = valorTaxa,
+            Mensagem = aplicaTaxa
+                ? $"Cancelamento após o prazo. Será cobrada 1 diária: R$ {valorTaxa:N2}."
+                : "Cancelamento gratuito (até 48 horas antes do check-in)."
+        };
+    }
+
+    public async Task<CancelReservationResult> CancelAsync(int id, int userId, bool isAdmin, CancelReservationRequest? request, CancellationToken ct = default)
+    {
+        var res = await _reservationRepo.GetByIdAsync(id, ct);
+        if (res == null)
+            return new CancelReservationResult { Success = false };
+        if (!isAdmin && res.UserId != userId)
+            return new CancelReservationResult { Success = false };
+        if (res.Status == "Cancelada")
+            return new CancelReservationResult { Success = true, Reservation = MapToDto(res) };
+
+        var checkIn = res.DataInicio;
+        var limiteGratuito = checkIn.AddHours(-48);
+        var agora = DateTime.UtcNow;
+        var aplicaTaxa = agora > limiteGratuito;
+        var valorTaxa = aplicaTaxa && res.Room != null ? res.Room.PrecoDiaria : 0;
+
+        if (aplicaTaxa && valorTaxa > 0)
+        {
+            var token = request?.TokenPagamento;
+            if (string.IsNullOrWhiteSpace(token))
+                return new CancelReservationResult { Success = false, PaymentRequired = true, FeeAmount = valorTaxa };
+
+            var paymentResult = await _paymentService.ProcessPaymentAsync(valorTaxa, "CartaoCredito", token, ct);
+            if (!paymentResult.Success)
+                return new CancelReservationResult { Success = false, PaymentRequired = true, FeeAmount = valorTaxa };
+        }
 
         res.Status = "Cancelada";
         await _reservationRepo.UpdateAsync(res, ct);
-        return MapToDto(res);
+        return new CancelReservationResult { Success = true, Reservation = MapToDto(res) };
     }
 
     private static ReservationDto MapToDto(Reservation r)

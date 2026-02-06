@@ -1,11 +1,7 @@
 <div class="admin-layout">
   <!-- Sidebar -->
   <aside class="admin-sidebar">
-    <div class="sidebar-header">
-      <span class="material-icons sidebar-logo">hotel</span>
-      <h1 class="sidebar-title">Painel Admin</h1>
-      <a routerLink="/" class="sidebar-back"><span class="material-icons sidebar-back-icon">home</span> Site</a>
-    </div>
+   
     <nav class="sidebar-nav">
       <button type="button" class="nav-item" [class.active]="tab() === 'dashboard'" (click)="setTab('dashboard')">
         <span class="material-icons nav-icon">dashboard</span>
@@ -408,20 +404,18 @@
         </div>
       </section>
     } @else if (tab() === 'spa') {
-      <section class="content-section">
+      <section class="content-section content-section-spa">
         <h2 class="section-title">Gestão do Spa</h2>
-        <p class="section-desc">Agenda de tratamentos, horários, terapeutas e pacotes promocionais</p>
-        <div class="coming-soon">
-          <span class="material-icons coming-icon">spa</span>
-          <h3>Em breve</h3>
-          <p>Gestão de agenda, horários disponíveis e reservas de spa. Enquanto isso, use o site para agendamentos.</p>
-          <a routerLink="/spa/agendar" class="btn-primary" target="_blank">Abrir agendamento Spa →</a>
-        </div>
+        <p class="section-desc">Agenda de tratamentos, horários e agendamento de pacotes — mesmo fluxo do site</p>
+        <app-spa-booking [isAdminContext]="true" />
       </section>
     } @else if (tab() === 'hospedes') {
       <section class="content-section">
         <h2 class="section-title">Gestão de hóspedes</h2>
         <p class="section-desc">Lista de clientes, histórico de estadias e contato</p>
+        @if (userError()) {
+          <p class="error">{{ userError() }}</p>
+        }
         <div class="table-wrap">
           <table>
             <thead>
@@ -430,6 +424,7 @@
                 <th>Email</th>
                 <th>Perfil</th>
                 <th>Cadastro</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -439,6 +434,12 @@
                   <td>{{ u.email }}</td>
                   <td><span class="badge">{{ u.role }}</span></td>
                   <td>{{ formatDate(u.createdAt) }}</td>
+                  <td>
+                    <button type="button" class="btn-sm" (click)="openEditUser(u)" title="Editar usuário">
+                      <span class="material-icons">edit</span>
+                      <span>Editar</span>
+                    </button>
+                  </td>
                 </tr>
               }
             </tbody>
@@ -540,6 +541,133 @@
         <button (click)="goPage(page() - 1)" [disabled]="page() <= 1">Anterior</button>
         <span>Página {{ page() }} de {{ totalPages() }}</span>
         <button (click)="goPage(page() + 1)" [disabled]="page() >= totalPages()">Próxima</button>
+      </div>
+    }
+
+    <!-- Modal de edição de usuário -->
+    @if (editingUserId() !== null) {
+      <div class="modal-overlay" (click)="closeEditUser()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Editar usuário</h3>
+            <button type="button" class="btn-close" (click)="closeEditUser()">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            @if (userError()) {
+              <p class="error">{{ userError() }}</p>
+            }
+            <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+              <div class="form-group">
+                <label>Nome completo</label>
+                <input formControlName="nome" type="text" placeholder="Nome completo" />
+                @if (userForm.get('nome')?.invalid && userForm.get('nome')?.touched) {
+                  <span class="error-text">Nome é obrigatório</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input formControlName="email" type="email" placeholder="email@exemplo.com" />
+                @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+                  <span class="error-text">Email inválido</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>Telefone</label>
+                <input formControlName="telefone" type="text" placeholder="(00) 00000-0000" />
+              </div>
+              <div class="form-group">
+                <label>CPF</label>
+                <input formControlName="cpf" type="text" placeholder="000.000.000-00" />
+              </div>
+              <div class="form-group">
+                <label>Data de nascimento</label>
+                <input formControlName="dataNascimento" type="date" />
+              </div>
+              <div class="form-group">
+                <label>Nacionalidade</label>
+                <input formControlName="nacionalidade" type="text" placeholder="Brasileira" />
+              </div>
+              <div class="form-group">
+                <label>Endereço</label>
+                <input formControlName="endereco" type="text" placeholder="Rua, número" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Cidade</label>
+                  <input formControlName="cidade" type="text" placeholder="Cidade" />
+                </div>
+                <div class="form-group">
+                  <label>País</label>
+                  <input formControlName="pais" type="text" placeholder="Brasil" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Idioma preferido</label>
+                <input formControlName="idiomaPreferido" type="text" placeholder="Português" />
+              </div>
+              <div class="form-group">
+                <label>Tipo de cama preferido</label>
+                <select formControlName="tipoCamaPreferido">
+                  <option value="">Selecione</option>
+                  <option value="King">King</option>
+                  <option value="Queen">Queen</option>
+                  <option value="Twin">Twin</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preferência alimentar</label>
+                <input formControlName="preferenciaAlimentar" type="text" placeholder="Vegetariano, vegano, etc." />
+              </div>
+              <div class="form-checkboxes">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="andarAlto" />
+                  <span>Preferência por andar alto</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="quartoSilencioso" />
+                  <span>Quarto silencioso</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="naoFumante" />
+                  <span>Não fumante</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="acessibilidade" />
+                  <span>Necessita acessibilidade</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select formControlName="ativo">
+                  <option [value]="true">Ativo</option>
+                  <option [value]="false">Inativo</option>
+                </select>
+              </div>
+              @if (auth.isAdmin()) {
+                <div class="form-group">
+                  <label>Perfil</label>
+                  <select formControlName="role">
+                    <option value="User">Hóspede</option>
+                    <option value="Recepcionista">Recepcionista</option>
+                    <option value="Gerente">Gerente</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+              } @else {
+                <div class="form-group">
+                  <label>Perfil</label>
+                  <input [value]="userForm.get('role')?.value" type="text" disabled />
+                </div>
+              }
+              <div class="modal-actions">
+                <button type="button" class="btn-outline" (click)="closeEditUser()">Cancelar</button>
+                <button type="submit" class="btn-primary" [disabled]="userForm.invalid">Salvar alterações</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     }
   </main>

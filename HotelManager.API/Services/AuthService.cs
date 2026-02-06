@@ -1,8 +1,10 @@
 using HotelManager.API.Auth;
+using HotelManager.API.Data;
 using HotelManager.API.DTOs.Auth;
 using HotelManager.API.DTOs.User;
 using HotelManager.API.Models;
 using HotelManager.API.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager.API.Services;
 
@@ -12,13 +14,15 @@ public class AuthService : IAuthService
     private readonly ISessionRepository _sessionRepo;
     private readonly IJwtService _jwtService;
     private readonly IConfiguration _config;
+    private readonly ApplicationDbContext _db;
 
-    public AuthService(IUserRepository userRepo, ISessionRepository sessionRepo, IJwtService jwtService, IConfiguration config)
+    public AuthService(IUserRepository userRepo, ISessionRepository sessionRepo, IJwtService jwtService, IConfiguration config, ApplicationDbContext db)
     {
         _userRepo = userRepo;
         _sessionRepo = sessionRepo;
         _jwtService = jwtService;
         _config = config;
+        _db = db;
     }
 
     public async Task<AuthResponse?> LoginGuestAsync(LoginRequest request, string? ip = null, string? device = null, CancellationToken ct = default)
@@ -123,6 +127,59 @@ public class AuthService : IAuthService
         };
 
         user = await _userRepo.CreateAsync(user, ct);
+
+        // Salvar endereço completo se fornecido
+        if (request.EnderecoCompleto != null)
+        {
+            var address = new Address
+            {
+                UserId = user.Id,
+                Rua = request.EnderecoCompleto.Rua,
+                Numero = request.EnderecoCompleto.Numero,
+                Complemento = request.EnderecoCompleto.Complemento,
+                Bairro = request.EnderecoCompleto.Bairro,
+                Cidade = request.EnderecoCompleto.Cidade,
+                Estado = request.EnderecoCompleto.Estado,
+                Cep = request.EnderecoCompleto.Cep,
+                Pais = request.EnderecoCompleto.Pais
+            };
+            _db.Addresses.Add(address);
+        }
+
+        // Salvar contato de emergência se fornecido
+        if (request.ContatoEmergencia != null)
+        {
+            var emergencyContact = new EmergencyContact
+            {
+                UserId = user.Id,
+                Nome = request.ContatoEmergencia.Nome,
+                Telefone = request.ContatoEmergencia.Telefone,
+                Email = request.ContatoEmergencia.Email,
+                Relacao = request.ContatoEmergencia.Relacao
+            };
+            _db.EmergencyContacts.Add(emergencyContact);
+        }
+
+        // Salvar dependentes se fornecidos
+        if (request.Dependentes != null && request.Dependentes.Any())
+        {
+            foreach (var depDto in request.Dependentes)
+            {
+                var dependent = new Dependent
+                {
+                    UserId = user.Id,
+                    Nome = depDto.Nome,
+                    DataNascimento = depDto.DataNascimento,
+                    Cpf = depDto.Cpf,
+                    NivelDependente = depDto.NivelDependente,
+                    Observacoes = depDto.Observacoes
+                };
+                _db.Dependents.Add(dependent);
+            }
+        }
+
+        // Salvar todas as alterações relacionadas
+        await _db.SaveChangesAsync(ct);
 
         var accessToken = _jwtService.GenerateGuestAccessToken(user);
         var accessExpires = DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:GuestAccessTokenExpiresMinutes"] ?? "60"));

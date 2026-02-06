@@ -476,4 +476,44 @@
       </div>
     }
   }
+
+  <!-- Modal padrão: conflito de período (você já tem uma reserva) -->
+  @if (showOverlapModal()) {
+    <div class="site-modal-overlay" (click)="closeOverlapModal()" role="presentation">
+      <div class="site-modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="overlap-modal-title">
+        <h2 id="overlap-modal-title" class="site-modal-title">Você já possui uma reserva neste período</h2>
+        @if (overlapModalStep() === 'choice') {
+          <p class="site-modal-message">
+            Para fazer esta nova reserva é necessário cancelar a reserva anterior no mesmo período.
+            Deseja <strong>cancelar a reserva anterior</strong> e confirmar esta?
+          </p>
+          @if (overlapModalError()) {
+            <p class="site-modal-error">{{ overlapModalError() }}</p>
+          }
+          <div class="site-modal-actions">
+            <button type="button" class="btn-secondary" (click)="overlapKeepCurrent()" [disabled]="overlapModalLoading()">Manter reserva atual</button>
+            <button type="button" class="btn-primary" (click)="overlapReplaceWithCancel()" [disabled]="overlapModalLoading()">
+              {{ overlapModalLoading() ? 'Processando...' : 'Cancelar a anterior e fazer esta' }}
+            </button>
+          </div>
+        } @else {
+          <p class="site-modal-message">
+            A reserva anterior está sujeita à taxa de cancelamento (1 diária).
+          </p>
+          <p class="site-modal-fee">Valor: <strong>R$ {{ overlapCancelFee() | number:'1.2-2' }}</strong></p>
+          <label class="site-modal-label">Token de pagamento (simulado)</label>
+          <input type="text" class="site-modal-input" [value]="overlapCancelToken()" (input)="overlapCancelToken.set($any($event.target).value)" placeholder="Ex.: valid" />
+          @if (overlapModalError()) {
+            <p class="site-modal-error">{{ overlapModalError() }}</p>
+          }
+          <div class="site-modal-actions">
+            <button type="button" class="btn-secondary" (click)="closeOverlapModal()" [disabled]="overlapModalLoading()">Voltar</button>
+            <button type="button" class="btn-primary" (click)="overlapPayFeeAndReplace()" [disabled]="overlapModalLoading()">
+              {{ overlapModalLoading() ? 'Processando...' : 'Pagar taxa e fazer nova reserva' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>

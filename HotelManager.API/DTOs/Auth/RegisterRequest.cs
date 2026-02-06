@@ -40,4 +40,13 @@ public class RegisterRequest
     public bool? NaoFumante { get; set; }
     public bool? Acessibilidade { get; set; }
     public string? PreferenciaAlimentar { get; set; }
+
+    // Endereço completo
+    public AddressDto? EnderecoCompleto { get; set; }
+
+    // Contato de emergência
+    public EmergencyContactDto? ContatoEmergencia { get; set; }
+
+    // Dependentes
+    public List<DependentDto>? Dependentes { get; set; }
 }

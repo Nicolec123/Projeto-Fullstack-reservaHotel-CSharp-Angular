@@ -25,7 +25,8 @@ export class RegisterComponent {
 
   error = '';
   loading = false;
-  currentStep = signal(1); // 1 = Dados essenciais, 2 = Documento, 3 = Preferências
+  currentStep = signal(1); // 1 = Dados essenciais, 2 = Documento, 3 = Endereço/Contato/Dependentes, 4 = Preferências
+  dependents = signal<Array<{ nome: string; dataNascimento: string; cpf: string; nivelDependente: string; observacoes: string }>>([]);
 
   form = this.fb.nonNullable.group({
     // Dados essenciais
@@ -40,11 +41,31 @@ export class RegisterComponent {
     dataNascimento: [''],
     nacionalidade: [''],
     
-    // Dados opcionais
+    // Dados opcionais (mantidos para compatibilidade)
     endereco: [''],
     cidade: [''],
     pais: [''],
     idiomaPreferido: [''],
+    
+    // Endereço completo
+    enderecoCompleto: this.fb.group({
+      rua: [''],
+      numero: [''],
+      complemento: [''],
+      bairro: [''],
+      cidade: [''],
+      estado: [''],
+      cep: [''],
+      pais: ['']
+    }),
+    
+    // Contato de emergência
+    contatoEmergencia: this.fb.group({
+      nome: [''],
+      telefone: [''],
+      email: [''],
+      relacao: ['']
+    }),
     
     // Preferências de estadia
     tipoCamaPreferido: [''],
@@ -73,7 +94,25 @@ export class RegisterComponent {
       this.currentStep.set(2);
     } else if (this.currentStep() === 2) {
       this.currentStep.set(3);
+    } else if (this.currentStep() === 3) {
+      this.currentStep.set(4);
     }
+  }
+
+  addDependent() {
+    this.dependents.update(deps => [...deps, { nome: '', dataNascimento: '', cpf: '', nivelDependente: '', observacoes: '' }]);
+  }
+
+  removeDependent(index: number) {
+    this.dependents.update(deps => deps.filter((_, i) => i !== index));
+  }
+
+  updateDependent(index: number, field: string, value: string) {
+    this.dependents.update(deps => {
+      const updated = [...deps];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
   }
 
   prevStep() {
@@ -117,6 +156,46 @@ export class RegisterComponent {
       acessibilidade: formValue.acessibilidade || undefined,
       preferenciaAlimentar: formValue.preferenciaAlimentar || undefined
     };
+
+    // Adicionar endereço completo se preenchido
+    const enderecoCompleto = formValue.enderecoCompleto;
+    if (enderecoCompleto && (enderecoCompleto.rua || enderecoCompleto.bairro || enderecoCompleto.cidade)) {
+      payload.enderecoCompleto = {
+        rua: enderecoCompleto.rua || '',
+        numero: enderecoCompleto.numero || undefined,
+        complemento: enderecoCompleto.complemento || undefined,
+        bairro: enderecoCompleto.bairro || '',
+        cidade: enderecoCompleto.cidade || '',
+        estado: enderecoCompleto.estado || '',
+        cep: enderecoCompleto.cep || '',
+        pais: enderecoCompleto.pais || ''
+      };
+    }
+
+    // Adicionar contato de emergência se preenchido
+    const contatoEmergencia = formValue.contatoEmergencia;
+    if (contatoEmergencia && (contatoEmergencia.nome || contatoEmergencia.telefone)) {
+      payload.contatoEmergencia = {
+        nome: contatoEmergencia.nome || '',
+        telefone: contatoEmergencia.telefone || '',
+        email: contatoEmergencia.email || undefined,
+        relacao: contatoEmergencia.relacao || undefined
+      };
+    }
+
+    // Adicionar dependentes se houver
+    const dependents = this.dependents();
+    if (dependents.length > 0) {
+      payload.dependentes = dependents
+        .filter(dep => dep.nome && dep.nivelDependente)
+        .map(dep => ({
+          nome: dep.nome,
+          dataNascimento: dep.dataNascimento || undefined,
+          cpf: dep.cpf || undefined,
+          nivelDependente: dep.nivelDependente,
+          observacoes: dep.observacoes || undefined
+        }));
+    }
 
     // Remove campos vazios
     Object.keys(payload).forEach(key => {

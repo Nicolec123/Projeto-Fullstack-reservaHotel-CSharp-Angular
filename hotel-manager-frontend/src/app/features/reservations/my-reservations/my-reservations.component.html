@@ -16,12 +16,48 @@
           @if (r.precoTotal != null) {
             <p class="preco">Total: R$ {{ r.precoTotal | number:'1.2-2' }}</p>
           }
-          @if (r.status === 'Confirmada') {
-            <button type="button" class="btn-cancel" (click)="cancel(r.id)">Cancelar reserva</button>
-          }
+          <div class="card-actions">
+            <a [routerLink]="['/minhas-reservas', r.id]" class="btn-details">Ver detalhes</a>
+            @if (r.status !== 'Cancelada') {
+              <button type="button" class="btn-cancel" (click)="openCancelModal(r.id)">Cancelar reserva</button>
+            }
+          </div>
         </div>
       }
     </div>
+
+    <!-- Modal de cancelamento (regra 48h) — estilo padrão do site -->
+    @if (showCancelModal()) {
+      <div class="site-modal-overlay" (click)="closeCancelModal()" role="presentation">
+        <div class="site-modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="cancel-modal-title">
+          <h2 id="cancel-modal-title" class="site-modal-title">Cancelar reserva?</h2>
+          @if (cancelInfo(); as info) {
+            <p class="site-modal-message">{{ info.mensagem }}</p>
+            @if (info.aplicaTaxa && info.valorTaxa > 0) {
+              <p class="site-modal-fee">Será cobrada <strong>1 diária: R$ {{ info.valorTaxa | number:'1.2-2' }}</strong>.</p>
+              <label class="site-modal-label">Token de pagamento (simulado)</label>
+              <input type="text" class="site-modal-input" [value]="cancelToken()" (input)="cancelToken.set($any($event.target).value)" placeholder="Ex.: valid" />
+            }
+          }
+          @if (cancelModalError()) {
+            <p class="site-modal-error">{{ cancelModalError() }}</p>
+          }
+          <div class="site-modal-actions">
+            <button type="button" class="btn-secondary" (click)="closeCancelModal()" [disabled]="cancelModalLoading()">Manter reserva</button>
+            <button type="button" class="btn-cancel" (click)="confirmCancel()" [disabled]="cancelModalLoading()">
+              {{ cancelModalLoading() ? 'Cancelando...' : (cancelInfo()?.aplicaTaxa ? 'Sim, cancelar e pagar' : 'Sim, cancelar') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <section class="policy" aria-label="Política de cancelamento">
+      <h2>❌ Cancelamento</h2>
+      <p>Cancelamento gratuito até 48 horas antes do check-in.</p>
+      <p>Após esse período, será cobrada 1 diária.</p>
+      <p>Tarifas promocionais podem possuir regras específicas.</p>
+    </section>
 
     @if (total() > pageSize) {
       <div class="pagination">

@@ -18,8 +18,13 @@
       <span class="step-label">Documento</span>
     </div>
     <div class="step-line" [class.completed]="currentStep() > 2"></div>
-    <div class="step" [class.active]="currentStep() >= 3">
+    <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
       <span class="step-number">3</span>
+      <span class="step-label">Endereço/Contato</span>
+    </div>
+    <div class="step-line" [class.completed]="currentStep() > 3"></div>
+    <div class="step" [class.active]="currentStep() >= 4">
+      <span class="step-number">4</span>
       <span class="step-label">Preferências</span>
     </div>
   </div>
@@ -91,8 +96,158 @@
       </div>
     }
 
-    <!-- Etapa 3: Preferências (opcional) -->
+    <!-- Etapa 3: Endereço completo, Contato de emergência e Dependentes -->
     @if (currentStep() === 3) {
+      <div class="form-step">
+        <h2>Endereço, Contato de Emergência e Dependentes</h2>
+        <p class="step-description">Complete suas informações pessoais</p>
+        
+        <!-- Endereço completo -->
+        <div class="form-section">
+          <h3>Endereço completo</h3>
+          <div formGroupName="enderecoCompleto">
+            <label>
+              <span>Rua *</span>
+              <input type="text" formControlName="rua" placeholder="Nome da rua" />
+            </label>
+            <div class="form-row">
+              <label>
+                <span>Número</span>
+                <input type="text" formControlName="numero" placeholder="123" />
+              </label>
+              <label>
+                <span>Complemento</span>
+                <input type="text" formControlName="complemento" placeholder="Apto, Bloco, etc" />
+              </label>
+            </div>
+            <label>
+              <span>Bairro *</span>
+              <input type="text" formControlName="bairro" placeholder="Nome do bairro" />
+            </label>
+            <div class="form-row">
+              <label>
+                <span>Cidade *</span>
+                <input type="text" formControlName="cidade" placeholder="São Paulo" />
+              </label>
+              <label>
+                <span>Estado *</span>
+                <input type="text" formControlName="estado" placeholder="SP" maxlength="2" />
+              </label>
+            </div>
+            <div class="form-row">
+              <label>
+                <span>CEP *</span>
+                <input type="text" formControlName="cep" placeholder="00000-000" maxlength="9" />
+              </label>
+              <label>
+                <span>País *</span>
+                <input type="text" formControlName="pais" placeholder="Brasil" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contato de emergência -->
+        <div class="form-section">
+          <h3>Contato de emergência</h3>
+          <div formGroupName="contatoEmergencia">
+            <label>
+              <span>Nome completo *</span>
+              <input type="text" formControlName="nome" placeholder="Nome do contato" />
+            </label>
+            <label>
+              <span>Telefone *</span>
+              <input type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" formControlName="email" placeholder="contato@email.com" />
+            </label>
+            <label>
+              <span>Relação</span>
+              <select formControlName="relacao">
+                <option value="">Selecione</option>
+                <option value="Cônjuge">Cônjuge</option>
+                <option value="Pai">Pai</option>
+                <option value="Mãe">Mãe</option>
+                <option value="Filho(a)">Filho(a)</option>
+                <option value="Irmão(ã)">Irmão(ã)</option>
+                <option value="Amigo(a)">Amigo(a)</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dependentes -->
+        <div class="form-section">
+          <h3>Dependentes</h3>
+          <p class="step-description">Adicione seus dependentes (cônjuge, filhos, etc.)</p>
+          
+          @for (dependent of dependents(); track $index) {
+            <div class="dependent-card">
+              <h4>Dependente {{ $index + 1 }}</h4>
+              <label>
+                <span>Nome completo *</span>
+                <input 
+                  type="text" 
+                  [value]="dependent.nome"
+                  (input)="updateDependent($index, 'nome', $any($event.target).value)"
+                  placeholder="Nome do dependente" />
+              </label>
+              <div class="form-row">
+                <label>
+                  <span>Data de nascimento</span>
+                  <input 
+                    type="date" 
+                    [value]="dependent.dataNascimento"
+                    (input)="updateDependent($index, 'dataNascimento', $any($event.target).value)" />
+                </label>
+                <label>
+                  <span>CPF</span>
+                  <input 
+                    type="text" 
+                    [value]="dependent.cpf"
+                    (input)="updateDependent($index, 'cpf', $any($event.target).value)"
+                    placeholder="000.000.000-00" />
+                </label>
+              </div>
+              <label>
+                <span>Nível de dependente *</span>
+                <select 
+                  [value]="dependent.nivelDependente"
+                  (change)="updateDependent($index, 'nivelDependente', $any($event.target).value)">
+                  <option value="">Selecione</option>
+                  <option value="Cônjuge">Cônjuge</option>
+                  <option value="Filho(a)">Filho(a)</option>
+                  <option value="Pai">Pai</option>
+                  <option value="Mãe">Mãe</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </label>
+              <label>
+                <span>Observações</span>
+                <textarea 
+                  [value]="dependent.observacoes"
+                  (input)="updateDependent($index, 'observacoes', $any($event.target).value)"
+                  placeholder="Informações adicionais (opcional)"></textarea>
+              </label>
+              <button type="button" class="btn-remove" (click)="removeDependent($index)">Remover dependente</button>
+            </div>
+          }
+          
+          <button type="button" class="btn-add" (click)="addDependent()">+ Adicionar dependente</button>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="prevStep()" class="btn-secondary">← Voltar</button>
+          <button type="button" (click)="nextStep()">Continuar →</button>
+        </div>
+      </div>
+    }
+
+    <!-- Etapa 4: Preferências (opcional) -->
+    @if (currentStep() === 4) {
       <div class="form-step">
         <h2>Preferências de estadia</h2>
         <p class="step-description">Essas informações são opcionais e nos ajudam a melhorar sua experiência</p>
@@ -100,7 +255,7 @@
         <div class="form-section">
           <h3>Dados opcionais</h3>
           <label>
-            <span>Endereço</span>
+            <span>Endereço (simples)</span>
             <input type="text" formControlName="endereco" placeholder="Rua, número" />
           </label>
           <div class="form-row">

@@ -28,6 +28,35 @@ export interface Reservation {
   dataFim: string;
   status: string;
   precoTotal?: number;
+  metodoPagamento?: string;
+  statusPagamento?: string;
+}
+
+export interface CancellationInfo {
+  aplicaTaxa: boolean;
+  valorTaxa: number;
+  mensagem: string;
+}
+
+export interface CreateReservationBody {
+  roomId: number;
+  dataInicio: string;
+  dataFim: string;
+  adultos?: number;
+  criancas?: number;
+  pets?: number;
+  observacoes?: string;
+  metodoPagamento?: string;
+  tokenPagamento?: string;
+  guests?: Array<{
+    nome: string;
+    cpf?: string;
+    dataNascimento?: string;
+    nacionalidade?: string;
+    telefone?: string;
+    tipo: string;
+    idade?: number;
+  }>;
 }
 
 export interface User {
@@ -36,6 +65,29 @@ export interface User {
   email: string;
   role: string;
   createdAt: string;
+}
+
+export interface UserDetail {
+  id: number;
+  nome: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  ativo: boolean;
+  telefone?: string;
+  cpf?: string;
+  dataNascimento?: string;
+  nacionalidade?: string;
+  endereco?: string;
+  cidade?: string;
+  pais?: string;
+  idiomaPreferido?: string;
+  tipoCamaPreferido?: string;
+  andarAlto?: boolean;
+  quartoSilencioso?: boolean;
+  naoFumante?: boolean;
+  acessibilidade?: boolean;
+  preferenciaAlimentar?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -78,36 +130,49 @@ export class ApiService {
     return this.http.get<Reservation>(`${API_URL}/reservations/${id}`);
   }
 
-  createReservation(body: { 
-    roomId: number; 
-    dataInicio: string; 
-    dataFim: string; 
-    adultos?: number;
-    criancas?: number;
-    pets?: number;
-    observacoes?: string;
-    metodoPagamento?: string;
-    tokenPagamento?: string;
-    guests?: Array<{
-      nome: string;
-      cpf?: string;
-      dataNascimento?: string;
-      nacionalidade?: string;
-      telefone?: string;
-      tipo: string;
-      idade?: number;
-    }>;
-  }) {
+  /** Regra 48h: cancelamento gratuito até 48h antes do check-in; após isso, 1 diária. */
+  getCancellationInfo(id: number) {
+    return this.http.get<CancellationInfo>(`${API_URL}/reservations/${id}/cancellation-info`);
+  }
+
+  createReservation(body: CreateReservationBody) {
     return this.http.post<Reservation>(`${API_URL}/reservations`, body);
   }
 
-  cancelReservation(id: number) {
-    return this.http.post<Reservation>(`${API_URL}/reservations/${id}/cancel`, {});
+  cancelReservation(id: number, body?: { tokenPagamento?: string }) {
+    return this.http.post<Reservation>(`${API_URL}/reservations/${id}/cancel`, body ?? {});
   }
 
   getUsers(page = 1, pageSize = 10) {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
     return this.http.get<PagedResult<User>>(`${API_URL}/admin/users`, { params });
+  }
+
+  getUser(id: number) {
+    return this.http.get<UserDetail>(`${API_URL}/admin/users/${id}`);
+  }
+
+  updateUser(id: number, body: {
+    nome: string;
+    email: string;
+    telefone?: string;
+    cpf?: string;
+    dataNascimento?: string;
+    nacionalidade?: string;
+    endereco?: string;
+    cidade?: string;
+    pais?: string;
+    idiomaPreferido?: string;
+    tipoCamaPreferido?: string;
+    andarAlto?: boolean;
+    quartoSilencioso?: boolean;
+    naoFumante?: boolean;
+    acessibilidade?: boolean;
+    preferenciaAlimentar?: string;
+    ativo?: boolean;
+    role?: string;
+  }) {
+    return this.http.put<User>(`${API_URL}/admin/users/${id}`, body);
   }
 
   createCollaborator(body: { nome: string; email: string; senha: string; nivel: string }) {

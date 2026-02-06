@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -167,15 +171,59 @@ static async Task EnsureJwtSchemaAsync(ApplicationDbContext db, string connectio
     }
     catch { /* tabela já existe ou outro motivo */ }
 
-    foreach (var (_, sql) in new[] {
+    // Verificar quais colunas já existem na tabela Users usando pragma_table_info
+    var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    try
+    {
+        var connection = db.Database.GetDbConnection();
+        var wasOpen = connection.State == System.Data.ConnectionState.Open;
+        if (!wasOpen)
+        {
+            await db.Database.OpenConnectionAsync();
+        }
+        
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM pragma_table_info('Users')";
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var columnName = reader.GetString(0);
+                existingColumns.Add(columnName);
+            }
+        }
+        finally
+        {
+            if (!wasOpen)
+            {
+                await db.Database.CloseConnectionAsync();
+            }
+        }
+    }
+    catch { /* erro ao verificar colunas - continuar tentando adicionar */ }
+
+    // Adicionar apenas as colunas que não existem
+    var columnsToAdd = new[] {
         ("Ativo", "ALTER TABLE \"Users\" ADD COLUMN \"Ativo\" INTEGER NOT NULL DEFAULT 1"),
         ("UltimoLogin", "ALTER TABLE \"Users\" ADD COLUMN \"UltimoLogin\" TEXT"),
         ("TwoFactorEnabled", "ALTER TABLE \"Users\" ADD COLUMN \"TwoFactorEnabled\" INTEGER NOT NULL DEFAULT 0"),
         ("HotelId", "ALTER TABLE \"Users\" ADD COLUMN \"HotelId\" INTEGER")
-    })
+    };
+
+    foreach (var (columnName, sql) in columnsToAdd)
     {
-        try { await db.Database.ExecuteSqlRawAsync(sql); }
-        catch { /* coluna já existe */ }
+        if (!existingColumns.Contains(columnName))
+        {
+            try 
+            { 
+                await db.Database.ExecuteSqlRawAsync(sql); 
+            }
+            catch 
+            { 
+                /* coluna pode ter sido criada por outro processo ou erro inesperado */ 
+            }
+        }
     }
 }
 

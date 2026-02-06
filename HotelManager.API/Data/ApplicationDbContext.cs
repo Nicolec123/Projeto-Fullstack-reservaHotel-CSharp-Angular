@@ -13,6 +13,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Guest> Guests => Set<Guest>();
+    public DbSet<Address> Addresses => Set<Address>();
+    public DbSet<EmergencyContact> EmergencyContacts => Set<EmergencyContact>();
+    public DbSet<Dependent> Dependents => Set<Dependent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +35,30 @@ public class ApplicationDbContext : DbContext
         {
             e.HasIndex(r => r.Numero).IsUnique();
             e.Property(r => r.PrecoDiaria).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<Address>(e =>
+        {
+            e.HasOne(a => a.User)
+                .WithMany(u => u.Addresses)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EmergencyContact>(e =>
+        {
+            e.HasOne(ec => ec.User)
+                .WithMany(u => u.EmergencyContacts)
+                .HasForeignKey(ec => ec.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Dependent>(e =>
+        {
+            e.HasOne(d => d.User)
+                .WithMany(u => u.Dependents)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

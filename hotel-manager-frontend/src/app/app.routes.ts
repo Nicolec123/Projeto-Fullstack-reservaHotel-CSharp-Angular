@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: 'cadastro', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
   { path: 'reservar/:id', loadComponent: () => import('./features/reservations/reserve/reserve.component').then(m => m.ReserveComponent), canActivate: [authGuard, clientGuard] },
   { path: 'minhas-reservas', loadComponent: () => import('./features/reservations/my-reservations/my-reservations.component').then(m => m.MyReservationsComponent), canActivate: [authGuard] },
+  { path: 'minhas-reservas/:id', loadComponent: () => import('./features/reservations/reservation-detail/reservation-detail.component').then(m => m.ReservationDetailComponent), canActivate: [authGuard] },
   { path: 'admin', loadComponent: () => import('./features/admin/admin.component').then(m => m.AdminComponent), canActivate: [authGuard, adminGuard] },
   { path: 'sobre', loadComponent: () => import('./features/info/about/about.component').then(m => m.AboutComponent) },
   { path: 'spa/agendar', loadComponent: () => import('./features/spa/spa-booking/spa-booking.component').then(m => m.SpaBookingComponent) },

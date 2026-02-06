@@ -47,20 +47,45 @@ public class ReservationsController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// Retorna se o cancelamento é gratuito ou se será cobrada 1 diária (regra 48h antes do check-in).
+    /// </summary>
+    [HttpGet("{id:int}/cancellation-info")]
+    public async Task<ActionResult<CancellationInfoDto>> GetCancellationInfo(int id, CancellationToken ct)
+    {
+        var info = await _reservationService.GetCancellationInfoAsync(id, UserId, IsStaff, ct);
+        if (info == null) return NotFound();
+        return Ok(info);
+    }
+
     [HttpPost]
     public async Task<ActionResult<ReservationDto>> Create([FromBody] CreateReservationRequest request, CancellationToken ct)
     {
-        var res = await _reservationService.CreateAsync(UserId, request, ct);
-        if (res == null)
-            return BadRequest(new { message = "Quarto indisponível, datas inválidas ou quarto não encontrado." });
+        var result = await _reservationService.CreateAsync(UserId, request, ct);
+        if (!result.Success)
+        {
+            var message = result.FailureReason switch
+            {
+                CreateReservationFailureReason.UserOverlap => "Você já possui uma reserva neste período.",
+                CreateReservationFailureReason.RoomConflict => "O quarto não está disponível nas datas escolhidas.",
+                CreateReservationFailureReason.RoomUnavailable => "Quarto não encontrado ou bloqueado.",
+                CreateReservationFailureReason.InvalidDates => "Datas inválidas ou no passado.",
+                _ => "Quarto indisponível, datas inválidas ou quarto não encontrado."
+            };
+            return BadRequest(new { message, reason = result.FailureReason.ToString(), overlappingReservationIds = result.OverlappingReservationIds });
+        }
+        var res = result.Reservation!;
         return CreatedAtAction(nameof(GetById), new { id = res.Id }, res);
     }
 
     [HttpPost("{id:int}/cancel")]
-    public async Task<ActionResult<ReservationDto>> Cancel(int id, CancellationToken ct)
+    public async Task<ActionResult<ReservationDto>> Cancel(int id, [FromBody] CancelReservationRequest? request, CancellationToken ct)
     {
-        var res = await _reservationService.CancelAsync(id, UserId, IsStaff, ct);
-        if (res == null) return NotFound();
-        return Ok(res);
+        var result = await _reservationService.CancelAsync(id, UserId, IsStaff, request, ct);
+        if (!result.Success && result.Reservation == null && !result.PaymentRequired)
+            return NotFound();
+        if (result.PaymentRequired)
+            return StatusCode(402, new { message = "Pagamento obrigatório para cancelamento.", feeAmount = result.FeeAmount });
+        return Ok(result.Reservation);
     }
 }

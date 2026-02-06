@@ -22,6 +22,32 @@ export interface LoginRequest {
   lembrarDeMim?: boolean;
 }
 
+export interface AddressDto {
+  rua: string;
+  numero?: string;
+  complemento?: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  pais: string;
+}
+
+export interface EmergencyContactDto {
+  nome: string;
+  telefone: string;
+  email?: string;
+  relacao?: string;
+}
+
+export interface DependentDto {
+  nome: string;
+  dataNascimento?: string;
+  cpf?: string;
+  nivelDependente: string;
+  observacoes?: string;
+}
+
 export interface RegisterRequest {
   nome: string;
   email: string;
@@ -41,6 +67,9 @@ export interface RegisterRequest {
   naoFumante?: boolean;
   acessibilidade?: boolean;
   preferenciaAlimentar?: string;
+  enderecoCompleto?: AddressDto;
+  contatoEmergencia?: EmergencyContactDto;
+  dependentes?: DependentDto[];
 }
 
 const TOKEN_KEY = 'hotel_token';

@@ -35,5 +35,9 @@ public class User
     public bool? Acessibilidade { get; set; }
     public string? PreferenciaAlimentar { get; set; }
 
+    // Relações
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public ICollection<Address> Addresses { get; set; } = new List<Address>();
+    public ICollection<EmergencyContact> EmergencyContacts { get; set; } = new List<EmergencyContact>();
+    public ICollection<Dependent> Dependents { get; set; } = new List<Dependent>();
 }

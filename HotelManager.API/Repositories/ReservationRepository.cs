@@ -56,18 +56,47 @@ public class ReservationRepository : IReservationRepository
 
     /// <summary>
     /// Verifica se existe reserva no mesmo quarto com sobreposição de datas (regra de conflito).
-    /// Considera apenas reservas com status Confirmada.
+    /// Considera apenas reservas com status Confirmada ou Pendente.
     /// </summary>
     public async Task<bool> HasConflictAsync(int roomId, DateTime dataInicio, DateTime dataFim, int? excludeReservationId, CancellationToken ct = default)
     {
         var query = _db.Reservations
-            .Where(r => r.RoomId == roomId && r.Status == "Confirmada")
+            .Where(r => r.RoomId == roomId && r.Status != "Cancelada")
             .Where(r => r.DataInicio < dataFim && r.DataFim > dataInicio);
 
         if (excludeReservationId.HasValue)
             query = query.Where(r => r.Id != excludeReservationId.Value);
 
         return await query.AnyAsync(ct);
+    }
+
+    /// <summary>
+    /// Verifica se o usuário já tem alguma reserva (qualquer quarto) com período sobreposto.
+    /// Impede duas reservas no mesmo dia/período sem cancelar a anterior.
+    /// </summary>
+    public async Task<bool> HasUserOverlapAsync(int userId, DateTime dataInicio, DateTime dataFim, int? excludeReservationId, CancellationToken ct = default)
+    {
+        var query = _db.Reservations
+            .Where(r => r.UserId == userId && r.Status != "Cancelada")
+            .Where(r => r.DataInicio < dataFim && r.DataFim > dataInicio);
+
+        if (excludeReservationId.HasValue)
+            query = query.Where(r => r.Id != excludeReservationId.Value);
+
+        return await query.AnyAsync(ct);
+    }
+
+    public async Task<List<int>> GetUserOverlappingIdsAsync(int userId, DateTime dataInicio, DateTime dataFim, int? excludeReservationId, CancellationToken ct = default)
+    {
+        var query = _db.Reservations
+            .Where(r => r.UserId == userId && r.Status != "Cancelada")
+            .Where(r => r.DataInicio < dataFim && r.DataFim > dataInicio)
+            .Select(r => r.Id);
+
+        if (excludeReservationId.HasValue)
+            query = query.Where(id => id != excludeReservationId.Value);
+
+        return await query.ToListAsync(ct);
     }
 
     public async Task<Reservation> CreateAsync(Reservation reservation, CancellationToken ct = default)

@@ -21,22 +21,16 @@ public class PaymentService : IPaymentService
 
     private PaymentResult ProcessCardPayment(decimal amount, string? token)
     {
-        // Simulação de API de pagamento (como Stripe, PagSeguro, etc)
+        // Simulação de API de pagamento (homologação: qualquer token válido é aprovado)
         if (string.IsNullOrEmpty(token))
             return new PaymentResult { Success = false, Message = "Token de cartão inválido" };
 
-        // Simula validação do cartão
         var transactionId = GenerateTransactionId();
-        
-        // Simula aprovação (90% de chance de sucesso)
-        var random = new Random();
-        var success = random.Next(1, 11) <= 9;
-
         return new PaymentResult
         {
-            Success = success,
-            TransactionId = success ? transactionId : null,
-            Message = success ? "Pagamento aprovado" : "Pagamento recusado. Verifique os dados do cartão."
+            Success = true,
+            TransactionId = transactionId,
+            Message = "Pagamento aprovado"
         };
     }
 

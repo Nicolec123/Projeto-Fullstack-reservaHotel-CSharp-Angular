@@ -2,7 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
-import { ApiService, Room } from '../../../core/services/api.service';
+import { ApiService, Room, CreateReservationBody } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SearchService } from '../../../core/services/search.service';
 import { getRoomImageUrl } from '../../../core/constants/room-images';
@@ -31,6 +31,17 @@ export class ReserveComponent {
   loading = signal(true);
   submitting = signal(false);
   error = signal('');
+
+  /** Modal: reserva no mesmo período — alertar antes de substituir */
+  showOverlapModal = signal(false);
+  overlappingReservationIds = signal<number[]>([]);
+  pendingCreateBody = signal<CreateReservationBody | null>(null);
+  /** 'choice' = escolher manter ou cancelar anterior | 'payment' = pagar taxa de cancelamento */
+  overlapModalStep = signal<'choice' | 'payment'>('choice');
+  overlapCancelFee = signal(0);
+  overlapCancelToken = signal('');
+  overlapModalError = signal('');
+  overlapModalLoading = signal(false);
 
   /** 1 = Datas | 2 = Dados hóspede | 3 = Revisão/Pagamento | 4 = Sucesso */
   step = signal(1);
@@ -217,10 +228,99 @@ export class ReserveComponent {
         this.step.set(4);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Não foi possível concluir a reserva.');
         this.submitting.set(false);
+        const reason = err.error?.reason;
+        const ids = err.error?.overlappingReservationIds as number[] | undefined;
+        if (reason === 'UserOverlap' && ids?.length) {
+          this.error.set('');
+          this.overlappingReservationIds.set(ids);
+          this.pendingCreateBody.set(body as CreateReservationBody);
+          this.overlapModalStep.set('choice');
+          this.overlapModalError.set('');
+          this.showOverlapModal.set(true);
+        } else {
+          this.error.set(err.error?.message || 'Não foi possível concluir a reserva.');
+        }
       },
       complete: () => this.submitting.set(false)
+    });
+  }
+
+  closeOverlapModal() {
+    this.showOverlapModal.set(false);
+    this.overlappingReservationIds.set([]);
+    this.pendingCreateBody.set(null);
+    this.overlapModalStep.set('choice');
+    this.overlapCancelFee.set(0);
+    this.overlapCancelToken.set('');
+    this.overlapModalError.set('');
+  }
+
+  /** Usuário escolheu manter a reserva atual */
+  overlapKeepCurrent() {
+    this.closeOverlapModal();
+  }
+
+  /** Usuário escolheu cancelar a anterior e fazer esta. Tenta cancelar; se 402, exige pagamento da taxa. */
+  overlapReplaceWithCancel() {
+    const ids = this.overlappingReservationIds();
+    const body = this.pendingCreateBody();
+    if (!ids.length || !body) return;
+    this.overlapModalLoading.set(true);
+    this.overlapModalError.set('');
+    this.api.cancelReservation(ids[0]).subscribe({
+      next: () => this.retryCreateAfterCancel(),
+      error: (err) => {
+        this.overlapModalLoading.set(false);
+        if (err.status === 402 && err.error?.feeAmount != null) {
+          this.overlapCancelFee.set(err.error.feeAmount);
+          this.overlapModalStep.set('payment');
+        } else {
+          this.overlapModalError.set(err.error?.message || 'Não foi possível cancelar a reserva anterior.');
+        }
+      }
+    });
+  }
+
+  /** Pagar taxa de cancelamento e então fazer a nova reserva */
+  overlapPayFeeAndReplace() {
+    const ids = this.overlappingReservationIds();
+    const body = this.pendingCreateBody();
+    const token = this.overlapCancelToken().trim();
+    if (!ids.length || !body) return;
+    if (!token) {
+      this.overlapModalError.set('Informe o token de pagamento para a taxa de cancelamento.');
+      return;
+    }
+    this.overlapModalLoading.set(true);
+    this.overlapModalError.set('');
+    this.api.cancelReservation(ids[0], { tokenPagamento: token }).subscribe({
+      next: () => this.retryCreateAfterCancel(),
+      error: (err) => {
+        this.overlapModalLoading.set(false);
+        this.overlapModalError.set(err.error?.message || 'Pagamento recusado. Tente novamente.');
+      }
+    });
+  }
+
+  private retryCreateAfterCancel() {
+    const body = this.pendingCreateBody();
+    if (!body) {
+      this.overlapModalLoading.set(false);
+      this.closeOverlapModal();
+      return;
+    }
+    this.api.createReservation(body).subscribe({
+      next: (res) => {
+        this.closeOverlapModal();
+        this.overlapModalLoading.set(false);
+        this.reservationId.set(res.id);
+        this.step.set(4);
+      },
+      error: (err) => {
+        this.overlapModalLoading.set(false);
+        this.overlapModalError.set(err.error?.message || 'Não foi possível concluir a nova reserva.');
+      }
     });
   }
 

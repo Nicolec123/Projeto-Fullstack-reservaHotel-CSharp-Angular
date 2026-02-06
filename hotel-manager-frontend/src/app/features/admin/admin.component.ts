@@ -4,17 +4,18 @@ import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiService, Room, Reservation, User, PagedResult } from '../../core/services/api.service';
+import { ApiService, Room, Reservation, User, UserDetail, PagedResult } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HOTEL_INFO } from '../../core/constants/hotel-info';
 import { SERVICE_DETAILS, ServiceDetail } from '../../core/constants/service-details';
+import { SpaBookingComponent } from '../spa/spa-booking/spa-booking.component';
 
 export type AdminTab = 'dashboard' | 'perfil' | 'rooms' | 'reservations' | 'financeiro' | 'spa' | 'hospedes' | 'avaliacoes' | 'configuracoes' | 'seguranca' | 'colaboradores';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, SpaBookingComponent],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -37,6 +38,8 @@ export class AdminComponent {
   pageSize = 10;
   roomError = signal('');
   collabError = signal('');
+  userError = signal('');
+  editingUserId = signal<number | null>(null);
 
   readonly hotel = HOTEL_INFO;
   readonly serviceDetails = SERVICE_DETAILS;
@@ -51,6 +54,27 @@ export class AdminComponent {
     email: ['', [Validators.required, Validators.email]],
     senha: ['', [Validators.required, Validators.minLength(6)]],
     nivel: ['', Validators.required]
+  });
+
+  userForm = this.fb.group({
+    nome: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    telefone: [''],
+    cpf: [''],
+    dataNascimento: [''],
+    nacionalidade: [''],
+    endereco: [''],
+    cidade: [''],
+    pais: [''],
+    idiomaPreferido: [''],
+    tipoCamaPreferido: [''],
+    andarAlto: [false],
+    quartoSilencioso: [false],
+    naoFumante: [false],
+    acessibilidade: [false],
+    preferenciaAlimentar: [''],
+    ativo: [true],
+    role: ['']
   });
 
   /** Métricas do dashboard */
@@ -303,5 +327,97 @@ export class AdminComponent {
       'User': 'Hóspede'
     };
     return map[role] ?? role;
+  }
+
+  openEditUser(user: User) {
+    this.editingUserId.set(user.id);
+    this.userError.set('');
+    // Carregar dados completos do usuário
+    this.api.getUser(user.id).subscribe({
+      next: (userData: UserDetail) => {
+        this.userForm.patchValue({
+          nome: userData.nome,
+          email: userData.email,
+          telefone: userData.telefone || '',
+          cpf: userData.cpf || '',
+          dataNascimento: userData.dataNascimento ? userData.dataNascimento.split('T')[0] : '',
+          nacionalidade: userData.nacionalidade || '',
+          endereco: userData.endereco || '',
+          cidade: userData.cidade || '',
+          pais: userData.pais || '',
+          idiomaPreferido: userData.idiomaPreferido || '',
+          tipoCamaPreferido: userData.tipoCamaPreferido || '',
+          andarAlto: userData.andarAlto || false,
+          quartoSilencioso: userData.quartoSilencioso || false,
+          naoFumante: userData.naoFumante || false,
+          acessibilidade: userData.acessibilidade || false,
+          preferenciaAlimentar: userData.preferenciaAlimentar || '',
+          ativo: userData.ativo,
+          role: userData.role
+        });
+      },
+      error: (err) => {
+        this.userError.set('Erro ao carregar dados do usuário.');
+        console.error(err);
+      }
+    });
+  }
+
+  closeEditUser() {
+    this.editingUserId.set(null);
+    this.userForm.reset();
+    this.userError.set('');
+  }
+
+  saveUser() {
+    if (this.userForm.invalid || !this.editingUserId()) return;
+    this.userError.set('');
+    
+    const formValue = this.userForm.getRawValue();
+    
+    // Função auxiliar para converter string vazia em null
+    const toNullIfEmpty = (value: string | null | undefined): string | null => {
+      if (!value || typeof value !== 'string') return null;
+      const trimmed = value.trim();
+      return trimmed === '' ? null : trimmed;
+    };
+
+    const updateData: any = {
+      nome: formValue.nome!,
+      email: formValue.email!,
+      telefone: toNullIfEmpty(formValue.telefone),
+      cpf: toNullIfEmpty(formValue.cpf),
+      dataNascimento: formValue.dataNascimento || null,
+      nacionalidade: toNullIfEmpty(formValue.nacionalidade),
+      endereco: toNullIfEmpty(formValue.endereco),
+      cidade: toNullIfEmpty(formValue.cidade),
+      pais: toNullIfEmpty(formValue.pais),
+      idiomaPreferido: toNullIfEmpty(formValue.idiomaPreferido),
+      tipoCamaPreferido: toNullIfEmpty(formValue.tipoCamaPreferido),
+      andarAlto: formValue.andarAlto ?? false,
+      quartoSilencioso: formValue.quartoSilencioso ?? false,
+      naoFumante: formValue.naoFumante ?? false,
+      acessibilidade: formValue.acessibilidade ?? false,
+      preferenciaAlimentar: toNullIfEmpty(formValue.preferenciaAlimentar),
+      ativo: formValue.ativo ?? true
+    };
+    
+    // Apenas Admin pode alterar role
+    if (this.auth.isAdmin() && formValue.role) {
+      updateData.role = formValue.role;
+    }
+
+    console.log('Enviando dados para atualização:', updateData);
+
+    this.api.updateUser(this.editingUserId()!, updateData).subscribe({
+      next: () => {
+        this.closeEditUser();
+        this.loadUsers();
+      },
+      error: (err: any) => {
+        this.userError.set(err.error?.message || 'Erro ao atualizar usuário.');
+        console.error('Erro ao atualizar usuário:', err);
+      }
+    });
   }
 }

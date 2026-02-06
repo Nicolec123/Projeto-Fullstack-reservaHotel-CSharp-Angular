@@ -1,0 +1,83 @@
+<div class="container">
+  @if (loading()) {
+    <p class="loading">Carregando...</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+    <a routerLink="/minhas-reservas" class="link">← Voltar para Minhas reservas</a>
+  } @else {
+    @if (reservation(); as r) {
+      <h1>Detalhes da reserva</h1>
+      <a routerLink="/minhas-reservas" class="link">← Minhas reservas</a>
+
+      <div class="card" [class.cancelada]="r.status === 'Cancelada'">
+        <div class="header">
+          <strong>Quarto {{ r.roomNumero }}</strong>
+          <span class="status" [class]="r.status.toLowerCase()">{{ r.status }}</span>
+        </div>
+
+        <dl class="details">
+          <dt>Check-in</dt>
+          <dd>{{ formatDate(r.dataInicio) }}</dd>
+          <dt>Check-out</dt>
+          <dd>{{ formatDate(r.dataFim) }}</dd>
+          @if (r.precoTotal != null) {
+            <dt>Total</dt>
+            <dd class="preco">R$ {{ r.precoTotal | number:'1.2-2' }}</dd>
+          }
+          @if (r.metodoPagamento) {
+            <dt>Pagamento</dt>
+            <dd>{{ r.metodoPagamento }}</dd>
+          }
+          @if (r.statusPagamento) {
+            <dt>Status do pagamento</dt>
+            <dd>{{ r.statusPagamento }}</dd>
+          }
+        </dl>
+
+        @if (canCancelOrReschedule) {
+          <div class="actions">
+            <button type="button" class="btn-secondary" (click)="reagendar()">
+              Reagendar reserva
+            </button>
+            <button type="button" class="btn-cancel" (click)="openCancelModal()" [disabled]="cancelling()">
+              Cancelar reserva
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Modal de confirmação de cancelamento (regra 48h) — estilo padrão do site -->
+      @if (showCancelModal(); as open) {
+        <div class="site-modal-overlay" (click)="closeCancelModal()" role="presentation">
+          <div class="site-modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="cancel-modal-title">
+            <h2 id="cancel-modal-title" class="site-modal-title">Cancelar reserva?</h2>
+            @if (cancelInfo(); as info) {
+              <p class="site-modal-message">{{ info.mensagem }}</p>
+              @if (info.aplicaTaxa && info.valorTaxa > 0) {
+                <p class="site-modal-fee">Será cobrada <strong>1 diária: R$ {{ info.valorTaxa | number:'1.2-2' }}</strong>.</p>
+                <label class="site-modal-label">Token de pagamento (simulado)</label>
+                <input type="text" class="site-modal-input" [value]="cancelToken()" (input)="cancelToken.set($any($event.target).value)" placeholder="Ex.: valid" />
+              }
+            }
+            @if (cancelModalError()) {
+              <p class="site-modal-error">{{ cancelModalError() }}</p>
+            }
+            <div class="site-modal-actions">
+              <button type="button" class="btn-secondary" (click)="closeCancelModal()" [disabled]="cancelModalLoading()">Manter reserva</button>
+              <button type="button" class="btn-cancel" (click)="confirmCancel()" [disabled]="cancelModalLoading()">
+                {{ cancelModalLoading() ? 'Cancelando...' : (cancelInfo()?.aplicaTaxa ? 'Sim, cancelar e pagar' : 'Sim, cancelar') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <section class="policy" aria-label="Política de cancelamento">
+        <h2>❌ Cancelamento</h2>
+        <p>Cancelamento gratuito até 48 horas antes do check-in.</p>
+        <p>Após esse período, será cobrada 1 diária.</p>
+        <p>Tarifas promocionais podem possuir regras específicas.</p>
+      </section>
+    }
+  }
+</div>

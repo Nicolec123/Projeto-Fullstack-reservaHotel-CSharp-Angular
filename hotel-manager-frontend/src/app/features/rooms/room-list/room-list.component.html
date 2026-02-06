@@ -8,23 +8,6 @@
     <app-search-bar></app-search-bar>
   </div>
 
-  @if (auth.isLoggedIn()) {
-    <div class="filters">
-      <label>
-        <span>Check-in</span>
-        <input type="text" mwlFlatpickr [ngModel]="dataInicio()" (ngModelChange)="dataInicio.set($event)" [options]="flatpickrOptions" placeholder="Selecione a data" />
-      </label>
-      <label>
-        <span>Check-out</span>
-        <input type="text" mwlFlatpickr [ngModel]="dataFim()" (ngModelChange)="dataFim.set($event)" [options]="flatpickrOptions" placeholder="Selecione a data" />
-      </label>
-      <button type="button" class="btn btn-primary" (click)="searchByDate()">Ver disponíveis</button>
-      @if (checkAvailability()) {
-        <button type="button" class="btn btn-secondary" (click)="clearDates()">Limpar</button>
-      }
-    </div>
-  }
-
   @if (loading()) {
     <div class="loading-state">
       <div class="spinner"></div>

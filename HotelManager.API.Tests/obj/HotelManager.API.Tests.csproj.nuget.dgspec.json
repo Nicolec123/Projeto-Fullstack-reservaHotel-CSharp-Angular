@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj": {}
+    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj": {
+    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+        "projectUniqueName": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
         "projectName": "HotelManager.API.Tests",
-        "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
-        "packagesPath": "C:\\Users\\ncruz\\AppData\\Local\\Temp\\cursor-sandbox-cache\\fb0b8e150c10041bda88f9b08c02a63c\\nuget",
-        "outputPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\obj\\",
+        "projectPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\HotelManager.API.Tests.csproj",
+        "packagesPath": "C:\\Users\\ncruz\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ncruz\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
-                "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj"
+              "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
+                "projectPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj"
               }
             }
           }
@@ -367,14 +367,14 @@
         }
       }
     },
-    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
+    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "projectUniqueName": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
         "projectName": "HotelManager.API",
-        "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
-        "packagesPath": "C:\\Users\\ncruz\\AppData\\Local\\Temp\\cursor-sandbox-cache\\fb0b8e150c10041bda88f9b08c02a63c\\nuget",
-        "outputPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
+        "projectPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "packagesPath": "C:\\Users\\ncruz\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ncruz\\AppData\\Roaming\\NuGet\\NuGet.Config"

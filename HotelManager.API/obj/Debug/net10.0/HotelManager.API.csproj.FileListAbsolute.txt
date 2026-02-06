@@ -329,3 +329,13 @@ C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\ne
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\HotelManager.API.genruntimeconfig.cache
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\ref\HotelManager.API.dll
 C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\obj\Debug\net10.0\HotelManager.API.sourcelink.json
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.AspNetCore.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Enrichers.Environment.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Extensions.Hosting.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Extensions.Logging.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Formatting.Compact.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Settings.Configuration.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Sinks.Console.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Sinks.Debug.dll
+C:\Users\ncruz\Desktop\Projeto-reservaHotel-CSharp\HotelManager.API\bin\Debug\net10.0\Serilog.Sinks.File.dll
