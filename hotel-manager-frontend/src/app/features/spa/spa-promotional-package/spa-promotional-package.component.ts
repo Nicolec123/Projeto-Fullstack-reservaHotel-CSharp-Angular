@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 import { SPA_PACKAGES, getSpaPackage, SpaPackage } from '../../../core/constants/spa-packages';
 
 @Component({
@@ -17,6 +18,7 @@ export class SpaPromotionalPackageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   readonly auth = inject(AuthService);
+  private readonly reservationState = inject(ReservationStateService);
 
   packageId = signal<string | null>(null);
   packageData = signal<SpaPackage | null>(null);
@@ -126,6 +128,14 @@ export class SpaPromotionalPackageComponent implements OnInit {
       this.router.navigate(['/']);
     }
 
+    // Verificar se há estado pendente para restaurar
+    const pendingState = this.reservationState.getPendingState();
+    if (pendingState && this.auth.isLoggedIn() && !this.auth.isAdmin()) {
+      // Se há estado pendente e o usuário está logado, pode avançar automaticamente
+      // Limpar estado pendente
+      this.reservationState.clearPendingState();
+    }
+
     // Preencher dados do usuário logado
     if (this.auth.isLoggedIn()) {
       const user = this.auth.currentUser();
@@ -139,6 +149,25 @@ export class SpaPromotionalPackageComponent implements OnInit {
   }
 
   avancarParaCustomizacao() {
+    // Verificar se o usuário está logado antes de continuar
+    if (!this.auth.isLoggedIn() || this.auth.isAdmin()) {
+      // Salvar estado atual antes de redirecionar
+      const packageId = this.packageId();
+      if (packageId) {
+        const currentUrl = `/spa/pacote/${packageId}`;
+        const queryParams: Record<string, string> = {};
+        
+        // Salvar estado pendente
+        this.reservationState.savePendingState(currentUrl, queryParams);
+        
+        // Redirecionar para login
+        this.router.navigate(['/login'], { 
+          queryParams: { returnUrl: currentUrl } 
+        });
+      }
+      return;
+    }
+
     this.step.set(2);
     this.error.set('');
   }

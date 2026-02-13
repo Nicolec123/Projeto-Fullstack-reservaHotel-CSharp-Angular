@@ -8,14 +8,14 @@ import { ApiService, Room, Reservation, User, UserDetail, PagedResult } from '..
 import { AuthService } from '../../core/services/auth.service';
 import { HOTEL_INFO } from '../../core/constants/hotel-info';
 import { SERVICE_DETAILS, ServiceDetail } from '../../core/constants/service-details';
-import { SpaBookingComponent } from '../spa/spa-booking/spa-booking.component';
+import { SpaAdminComponent } from './spa-admin/spa-admin.component';
 
 export type AdminTab = 'dashboard' | 'perfil' | 'rooms' | 'reservations' | 'financeiro' | 'spa' | 'hospedes' | 'avaliacoes' | 'configuracoes' | 'seguranca' | 'colaboradores';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, SpaBookingComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, SpaAdminComponent],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })

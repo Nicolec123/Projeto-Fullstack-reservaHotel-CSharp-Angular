@@ -9,8 +9,8 @@ describe('Home (página inicial)', () => {
   });
 
   it('deve exibir elementos principais da home', () => {
-    cy.get('header').should('exist');
-    cy.get('nav').should('exist');
+    cy.get('nav.nav').should('exist');
+    cy.get('main').should('exist');
   });
 
   it('deve navegar para quartos pelo menu/link', () => {

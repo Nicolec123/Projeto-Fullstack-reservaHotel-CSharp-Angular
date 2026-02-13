@@ -30,6 +30,16 @@ export interface Reservation {
   precoTotal?: number;
   metodoPagamento?: string;
   statusPagamento?: string;
+  reagendadaDeReservationId?: number;
+  reservaOriginal?: ReservationOriginalInfo;
+}
+
+export interface ReservationOriginalInfo {
+  id: number;
+  dataInicio: string;
+  dataFim: string;
+  roomNumero?: string;
+  precoTotal?: number;
 }
 
 export interface CancellationInfo {
@@ -48,6 +58,7 @@ export interface CreateReservationBody {
   observacoes?: string;
   metodoPagamento?: string;
   tokenPagamento?: string;
+  excludeReservationId?: number; // Para reagendamento: exclui esta reserva da validação de conflito
   guests?: Array<{
     nome: string;
     cpf?: string;

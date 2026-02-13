@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly reservationState = inject(ReservationStateService);
 
   error = '';
   loading = false;
@@ -36,7 +38,28 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.error = '';
     this.loading = true;
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/quartos';
+    
+    // Verificar se há estado pendente de reserva
+    const pendingState = this.reservationState.getPendingState();
+    const returnUrlFromQuery = this.route.snapshot.queryParams['returnUrl'];
+    
+    // Priorizar estado pendente se existir, senão usar returnUrl da query
+    let returnUrl = pendingState?.url || returnUrlFromQuery || '/quartos';
+    let queryParams = pendingState?.queryParams;
+    
+    // Se não houver estado pendente mas o returnUrl contém query params, extrair
+    if (!queryParams && returnUrlFromQuery && returnUrlFromQuery.includes('?')) {
+      const [url, queryString] = returnUrlFromQuery.split('?');
+      returnUrl = url;
+      queryParams = {};
+      queryString.split('&').forEach((param: string) => {
+        const [key, value] = param.split('=');
+        if (key && value) {
+          queryParams![key] = decodeURIComponent(value);
+        }
+      });
+    }
+    
     const isAdmin = this.isAdminLogin();
     const body = {
       email: this.form.getRawValue().email,
@@ -47,9 +70,18 @@ export class LoginComponent {
       next: () => {
         const user = this.auth.currentUser();
         if (user && ['Admin', 'Gerente', 'Recepcionista'].includes(user.role)) {
+          // Limpar estado pendente se for admin
+          this.reservationState.clearPendingState();
           this.router.navigateByUrl('/admin');
         } else {
-          this.router.navigateByUrl(returnUrl);
+          // Limpar estado pendente após redirecionar
+          this.reservationState.clearPendingState();
+          // Navegar com query params se houver
+          if (queryParams && Object.keys(queryParams).length > 0) {
+            this.router.navigate([returnUrl], { queryParams });
+          } else {
+            this.router.navigateByUrl(returnUrl);
+          }
         }
       },
       error: (err) => {

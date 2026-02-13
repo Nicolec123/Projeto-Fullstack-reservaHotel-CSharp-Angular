@@ -4,7 +4,7 @@ Cypress.Commands.add('loginGuest', (email = 'hospede@hotel.com', password = 'Hos
   cy.request('POST', `${API_URL}/auth/login`, { email, senha: password, lembrarDeMim: false })
     .then((res) => {
       expect(res.status).to.eq(200);
-      const token = res.body?.accessToken;
+      const token = res.body?.token ?? res.body?.accessToken;
       if (token) {
         window.localStorage.setItem('token', token);
         window.localStorage.setItem('user', JSON.stringify(res.body));
@@ -18,7 +18,7 @@ Cypress.Commands.add('loginAdmin', () => {
     senha: 'Admin@123',
   }).then((res) => {
     expect(res.status).to.eq(200);
-    const token = res.body?.accessToken;
+    const token = res.body?.token ?? res.body?.accessToken;
     if (token) {
       window.localStorage.setItem('token', token);
       window.localStorage.setItem('user', JSON.stringify(res.body));

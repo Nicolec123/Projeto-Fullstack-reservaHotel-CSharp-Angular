@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { ApiService, Room, CreateReservationBody } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 import { SearchService } from '../../../core/services/search.service';
 import { getRoomImageUrl } from '../../../core/constants/room-images';
 import { getSpaAddOn, SpaAddOn } from '../../../core/constants/spa-addons';
@@ -22,9 +23,12 @@ export class ReserveComponent {
   private readonly fb = inject(FormBuilder);
   private readonly search = inject(SearchService);
   readonly auth = inject(AuthService);
+  private readonly reservationState = inject(ReservationStateService);
 
   room = signal<Room | null>(null);
   reservationId = signal<number | null>(null);
+  /** ID da reserva que está sendo reagendada (vem por queryParam ?reagendar=id) */
+  reschedulingReservationId = signal<number | null>(null);
   /** Pacote de spa escolhido na simulação (vem por queryParam ?spa=id) */
   spaAddOn = signal<SpaAddOn | null>(null);
   readonly getRoomImageUrl = getRoomImageUrl;
@@ -152,11 +156,47 @@ export class ReserveComponent {
       this.router.navigate(['/quartos']);
       return;
     }
-    const spaId = this.route.snapshot.queryParamMap.get('spa');
+
+    // Verificar se há estado pendente para restaurar
+    const pendingState = this.reservationState.getPendingState();
+    let spaId = this.route.snapshot.queryParamMap.get('spa');
+    
+    // Capturar ID da reserva que está sendo reagendada
+    const reagendarId = this.route.snapshot.queryParamMap.get('reagendar');
+    if (reagendarId) {
+      const id = Number(reagendarId);
+      if (!isNaN(id)) {
+        this.reschedulingReservationId.set(id);
+      }
+    }
+    
+    // Se houver estado pendente e o usuário estiver logado, restaurar query params
+    if (pendingState && this.auth.isLoggedIn() && !this.auth.isAdmin()) {
+      if (pendingState.queryParams) {
+        // Restaurar query params do estado pendente
+        const pendingSpaId = pendingState.queryParams['spa'];
+        const pendingSpaPackage = pendingState.queryParams['spaPackage'];
+        const pendingSpaPessoas = pendingState.queryParams['spaPessoas'];
+        
+        if (pendingSpaId) {
+          spaId = pendingSpaId;
+        }
+        
+        // Restaurar dados do formulário se houver
+        if (pendingState.formData) {
+          this.form.patchValue(pendingState.formData);
+        }
+        
+        // Limpar estado pendente após restaurar
+        this.reservationState.clearPendingState();
+      }
+    }
+
     if (spaId) {
       const addOn = getSpaAddOn(spaId);
       if (addOn) this.spaAddOn.set(addOn);
     }
+    
     this.api.getRoom(id).subscribe({
       next: (r) => {
         this.room.set(r);
@@ -222,9 +262,29 @@ export class ReserveComponent {
       guests: guests.length > 0 ? guests : undefined
     };
 
+    // Se estiver reagendando, inclui o ID da reserva antiga para excluí-la da validação de conflito
+    const reschedulingId = this.reschedulingReservationId();
+    if (reschedulingId) {
+      body.excludeReservationId = reschedulingId;
+    }
+
     this.api.createReservation(body).subscribe({
       next: (res) => {
         this.reservationId.set(res.id);
+        // Se estava reagendando, cancela a reserva antiga automaticamente
+        const reschedulingId = this.reschedulingReservationId();
+        if (reschedulingId) {
+          this.api.cancelReservation(reschedulingId).subscribe({
+            next: () => {
+              // Reserva antiga cancelada com sucesso
+              this.reschedulingReservationId.set(null);
+            },
+            error: (err) => {
+              // Log do erro mas não impede o sucesso da nova reserva
+              console.warn('Não foi possível cancelar a reserva antiga automaticamente:', err);
+            }
+          });
+        }
         this.step.set(4);
       },
       error: (err) => {

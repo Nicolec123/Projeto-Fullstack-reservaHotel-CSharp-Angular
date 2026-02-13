@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uRrak8GpTXg=",
+  "dgSpecHash": "GbFOaFQcpf0=",
   "success": true,
-  "projectFilePath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+  "projectFilePath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ncruz\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\ncruz\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

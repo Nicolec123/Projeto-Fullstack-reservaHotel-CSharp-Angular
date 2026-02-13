@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {}
+    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {}
   },
   "projects": {
-    "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
+    "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "projectUniqueName": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
         "projectName": "HotelManager.API",
-        "projectPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
+        "projectPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\HotelManager.API.csproj",
         "packagesPath": "C:\\Users\\ncruz\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
+        "outputPath": "C:\\Users\\ncruz\\Desktop\\Projeto-reservaHotel-CSharp\\HotelManager.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ncruz\\AppData\\Roaming\\NuGet\\NuGet.Config"

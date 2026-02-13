@@ -24,20 +24,36 @@ public class ReservationRepository : IReservationRepository
 
     public async Task<List<Reservation>> GetByUserIdAsync(int userId, CancellationToken ct = default)
     {
+        // Busca IDs de reservas canceladas que foram substituídas por reagendamento
+        var replacedReservationIds = await _db.Reservations
+            .Where(r => r.UserId == userId && r.ReagendadaDeReservationId.HasValue)
+            .Select(r => r.ReagendadaDeReservationId!.Value)
+            .ToListAsync(ct);
+
         return await _db.Reservations
             .Include(r => r.Room)
             .Include(r => r.Guests)
             .Where(r => r.UserId == userId)
+            // Exclui reservas canceladas que foram substituídas por reagendamento
+            .Where(r => !(r.Status == "Cancelada" && replacedReservationIds.Contains(r.Id)))
             .OrderByDescending(r => r.DataInicio)
             .ToListAsync(ct);
     }
 
     public async Task<List<Reservation>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
     {
+        // Busca IDs de reservas canceladas que foram substituídas por reagendamento
+        var replacedReservationIds = await _db.Reservations
+            .Where(r => r.ReagendadaDeReservationId.HasValue)
+            .Select(r => r.ReagendadaDeReservationId!.Value)
+            .ToListAsync(ct);
+
         return await _db.Reservations
             .Include(r => r.User)
             .Include(r => r.Room)
             .Include(r => r.Guests)
+            // Exclui reservas canceladas que foram substituídas por reagendamento
+            .Where(r => !(r.Status == "Cancelada" && replacedReservationIds.Contains(r.Id)))
             .OrderByDescending(r => r.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -46,7 +62,16 @@ public class ReservationRepository : IReservationRepository
 
     public async Task<int> CountAsync(CancellationToken ct = default)
     {
-        return await _db.Reservations.CountAsync(ct);
+        // Busca IDs de reservas canceladas que foram substituídas por reagendamento
+        var replacedReservationIds = await _db.Reservations
+            .Where(r => r.ReagendadaDeReservationId.HasValue)
+            .Select(r => r.ReagendadaDeReservationId!.Value)
+            .ToListAsync(ct);
+
+        return await _db.Reservations
+            // Exclui reservas canceladas que foram substituídas por reagendamento
+            .Where(r => !(r.Status == "Cancelada" && replacedReservationIds.Contains(r.Id)))
+            .CountAsync(ct);
     }
 
     public async Task<int> CountByUserAsync(int userId, CancellationToken ct = default)

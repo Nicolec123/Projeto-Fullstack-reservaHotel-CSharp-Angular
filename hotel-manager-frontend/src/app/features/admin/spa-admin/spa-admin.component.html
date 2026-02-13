@@ -1,0 +1,364 @@
+<div class="spa-admin-page">
+  <div class="spa-admin-header">
+    <h2>Gestão do Spa</h2>
+    <p class="section-desc">Agenda de tratamentos, horários e agendamento de pacotes</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="spa-admin-tabs">
+    <button 
+      type="button" 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'agendamentos'"
+      (click)="setTab('agendamentos')"
+    >
+      <span class="material-icons">event</span>
+      Agendamentos
+    </button>
+    <button 
+      type="button" 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'horarios'"
+      (click)="setTab('horarios')"
+    >
+      <span class="material-icons">schedule</span>
+      Horários
+    </button>
+    <button 
+      type="button" 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'pacotes'"
+      (click)="setTab('pacotes')"
+    >
+      <span class="material-icons">spa</span>
+      Pacotes
+    </button>
+    <button 
+      type="button" 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'estatisticas'"
+      (click)="setTab('estatisticas')"
+    >
+      <span class="material-icons">analytics</span>
+      Estatísticas
+    </button>
+  </div>
+
+  <!-- Conteúdo das Tabs -->
+  <div class="spa-admin-content">
+    @if (activeTab() === 'agendamentos') {
+      <!-- Tab: Agendamentos -->
+      <section class="spa-tab-content">
+        <div class="filters-bar">
+          <div class="filter-group">
+            <label>
+              <span>Status:</span>
+              <select [value]="filterStatus()" (change)="filterStatus.set($any($event.target).value)">
+                <option value="todos">Todos</option>
+                <option value="confirmado">Confirmados</option>
+                <option value="pendente">Pendentes</option>
+                <option value="cancelado">Cancelados</option>
+                <option value="concluido">Concluídos</option>
+              </select>
+            </label>
+          </div>
+          <div class="filter-group">
+            <label>
+              <span>Data:</span>
+              <input 
+                type="date" 
+                [value]="filterDate()" 
+                (change)="filterDate.set($any($event.target).value)"
+                [min]="getMinDate()"
+              />
+            </label>
+          </div>
+          <button type="button" class="btn-clear-filters" (click)="filterStatus.set('todos'); filterDate.set('')">
+            Limpar filtros
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Pacote</th>
+                <th>Data</th>
+                <th>Horário</th>
+                <th>Pessoas</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredAppointments().length === 0) {
+                <tr>
+                  <td colspan="8" class="empty-state">
+                    <span class="material-icons">event_busy</span>
+                    <p>Nenhum agendamento encontrado</p>
+                  </td>
+                </tr>
+              } @else {
+                @for (app of filteredAppointments(); track app.id) {
+                  <tr>
+                    <td>
+                      <div class="client-info">
+                        <strong>{{ app.clienteNome }}</strong>
+                        <small>{{ app.clienteEmail }}</small>
+                      </div>
+                    </td>
+                    <td>{{ app.pacote }}</td>
+                    <td>{{ formatDate(app.dataAgendamento) }}</td>
+                    <td>{{ app.horario }}</td>
+                    <td>{{ app.numPessoas }}</td>
+                    <td><strong>{{ formatCurrency(app.valorTotal) }}</strong></td>
+                    <td>
+                      <span class="badge" [class]="getStatusBadgeClass(app.status)">
+                        {{ getStatusLabel(app.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        @if (app.status === 'pendente') {
+                          <button 
+                            type="button" 
+                            class="btn-sm btn-success"
+                            (click)="updateAppointmentStatus(app.id, 'confirmado')"
+                            title="Confirmar"
+                          >
+                            <span class="material-icons">check</span>
+                          </button>
+                        }
+                        @if (app.status !== 'cancelado' && app.status !== 'concluido') {
+                          <button 
+                            type="button" 
+                            class="btn-sm btn-danger"
+                            (click)="updateAppointmentStatus(app.id, 'cancelado')"
+                            title="Cancelar"
+                          >
+                            <span class="material-icons">close</span>
+                          </button>
+                        }
+                        @if (app.status === 'confirmado') {
+                          <button 
+                            type="button" 
+                            class="btn-sm btn-info"
+                            (click)="updateAppointmentStatus(app.id, 'concluido')"
+                            title="Marcar como concluído"
+                          >
+                            <span class="material-icons">done_all</span>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'horarios') {
+      <!-- Tab: Horários -->
+      <section class="spa-tab-content">
+        <div class="form-card">
+          <h3>Bloquear Horário</h3>
+          @if (error()) {
+            <div class="error">{{ error() }}</div>
+          }
+          <form [formGroup]="blockTimeForm" (ngSubmit)="blockTimeSlot()">
+            <div class="form-row">
+              <label>
+                <span>Data *</span>
+                <input 
+                  type="date" 
+                  formControlName="data"
+                  [min]="getMinDate()"
+                  [max]="getMaxDate()"
+                />
+              </label>
+              <label>
+                <span>Horário *</span>
+                <select formControlName="horario">
+                  <option value="">Selecione</option>
+                  @for (horario of horariosDisponiveis; track horario) {
+                    <option [value]="horario">{{ horario }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>
+                <span>Motivo *</span>
+                <input 
+                  type="text" 
+                  formControlName="motivo" 
+                  placeholder="Ex: Manutenção, Evento especial, etc."
+                />
+              </label>
+            </div>
+            <button type="submit" class="btn-primary">Bloquear Horário</button>
+          </form>
+        </div>
+
+        <div class="blocked-slots-list">
+          <h3>Horários Bloqueados</h3>
+          @if (blockedTimeSlots().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">schedule</span>
+              <p>Nenhum horário bloqueado</p>
+            </div>
+          } @else {
+            <div class="blocked-slots-grid">
+              @for (block of blockedTimeSlots(); track block.id) {
+                <div class="blocked-slot-card">
+                  <div class="blocked-slot-header">
+                    <div>
+                      <strong>{{ formatDate(block.data) }}</strong>
+                      <span class="time">{{ block.horario }}</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      class="btn-remove"
+                      (click)="removeBlockedTimeSlot(block.id)"
+                      title="Remover bloqueio"
+                    >
+                      <span class="material-icons">close</span>
+                    </button>
+                  </div>
+                  <div class="blocked-slot-body">
+                    <p><strong>Motivo:</strong> {{ block.motivo }}</p>
+                    <small>Criado por {{ block.criadoPor }} em {{ formatDate(block.criadoEm.split('T')[0]) }}</small>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'pacotes') {
+      <!-- Tab: Pacotes -->
+      <section class="spa-tab-content">
+        <div class="packages-admin-grid">
+          @for (pkg of packages; track pkg.id) {
+            <div class="package-admin-card">
+              <div class="package-admin-header">
+                <h3>{{ pkg.nome }}</h3>
+                @if (pkg.popular) {
+                  <span class="badge badge-info">Mais Popular</span>
+                }
+              </div>
+              <div class="package-admin-body">
+                <p class="package-desc">{{ pkg.descricao }}</p>
+                <div class="package-details">
+                  <div class="detail-item">
+                    <span class="material-icons">schedule</span>
+                    <span>{{ pkg.duracao }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="material-icons">people</span>
+                    <span>{{ pkg.pessoasIncluidas }} pessoa{{ pkg.pessoasIncluidas > 1 ? 's' : '' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="material-icons">attach_money</span>
+                    <span>{{ formatCurrency(pkg.precoBase) }}</span>
+                  </div>
+                </div>
+                <div class="package-items">
+                  <strong>Itens inclusos:</strong>
+                  <ul>
+                    @for (item of pkg.itensInclusos; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                </div>
+              </div>
+              <div class="package-admin-actions">
+                <button type="button" class="btn-outline">
+                  <span class="material-icons">edit</span>
+                  Editar
+                </button>
+                <button type="button" class="btn-outline">
+                  <span class="material-icons">visibility</span>
+                  Ver no site
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'estatisticas') {
+      <!-- Tab: Estatísticas -->
+      <section class="spa-tab-content">
+        @let s = stats();
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="material-icons stat-icon">event</span>
+            <span class="stat-value">{{ s.totalAgendamentos }}</span>
+            <span class="stat-label">Total de Agendamentos</span>
+          </div>
+          <div class="stat-card highlight">
+            <span class="material-icons stat-icon">payments</span>
+            <span class="stat-value">{{ formatCurrency(s.receitaTotal) }}</span>
+            <span class="stat-label">Receita Total</span>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons stat-icon">calendar_today</span>
+            <span class="stat-value">{{ s.hoje }}</span>
+            <span class="stat-label">Agendamentos Hoje</span>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons stat-icon">trending_up</span>
+            <span class="stat-value">{{ formatCurrency(s.receitaMes) }}</span>
+            <span class="stat-label">Receita do Mês</span>
+          </div>
+        </div>
+
+        <div class="stats-breakdown">
+          <div class="breakdown-card">
+            <h3>Status dos Agendamentos</h3>
+            <div class="breakdown-list">
+              <div class="breakdown-item">
+                <span class="breakdown-label">Confirmados</span>
+                <span class="breakdown-value">{{ s.confirmados }}</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Pendentes</span>
+                <span class="breakdown-value">{{ s.pendentes }}</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Concluídos</span>
+                <span class="breakdown-value">{{ s.concluidos }}</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Cancelados</span>
+                <span class="breakdown-value">{{ s.cancelados }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="breakdown-card">
+            <h3>Pacotes Mais Populares</h3>
+            <div class="breakdown-list">
+              @for (pkg of packages; track pkg.id) {
+                @let count = getAppointmentCountByPackage(pkg.nome);
+                <div class="breakdown-item">
+                  <span class="breakdown-label">{{ pkg.nome }}</span>
+                  <span class="breakdown-value">{{ count }} agendamento{{ count !== 1 ? 's' : '' }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+  </div>
+</div>

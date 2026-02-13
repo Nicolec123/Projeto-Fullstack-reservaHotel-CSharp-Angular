@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ApiService, Room } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 import { SearchService } from '../../../core/services/search.service';
 import { SearchBarComponent } from '../../../shared/search-bar/search-bar.component';
 import { getRoomImages } from '../../../core/constants/room-images';
@@ -22,6 +23,7 @@ export class RoomListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly search = inject(SearchService);
   readonly auth = inject(AuthService);
+  private readonly reservationState = inject(ReservationStateService);
   readonly getRoomImages = getRoomImages;
 
   roomImageIndices = signal<Record<number, number>>({});
@@ -110,10 +112,15 @@ export class RoomListComponent {
   }
 
   goToReserve(room: Room) {
-    if (this.auth.isLoggedIn() && !room.bloqueado) {
+    if (room.bloqueado) return;
+    
+    if (this.auth.isLoggedIn() && !this.auth.isAdmin()) {
       this.router.navigate(['/reservar', room.id]);
     } else {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/reservar/${room.id}` } });
+      // Salvar estado pendente antes de redirecionar
+      const reserveUrl = `/reservar/${room.id}`;
+      this.reservationState.savePendingState(reserveUrl);
+      this.router.navigate(['/login'], { queryParams: { returnUrl: reserveUrl } });
     }
   }
 }

@@ -15,6 +15,17 @@ public class ReservationDto
     public string? StatusPagamento { get; set; }
     public string? CodigoPix { get; set; }
     public string? CodigoBoleto { get; set; }
+    public int? ReagendadaDeReservationId { get; set; } // ID da reserva original que foi substituída
+    public ReservationOriginalInfo? ReservaOriginal { get; set; } // Informações da reserva original (se foi reagendada)
+}
+
+public class ReservationOriginalInfo
+{
+    public int Id { get; set; }
+    public DateTime DataInicio { get; set; }
+    public DateTime DataFim { get; set; }
+    public string? RoomNumero { get; set; }
+    public decimal? PrecoTotal { get; set; }
 }
 
 public class GuestDto
@@ -40,6 +51,7 @@ public class CreateReservationRequest
     public string? MetodoPagamento { get; set; } // CartaoCredito, Pix, Boleto
     public string? TokenPagamento { get; set; } // Para cartão (simulado)
     public List<GuestDto>? Guests { get; set; }
+    public int? ExcludeReservationId { get; set; } // Para reagendamento: exclui esta reserva da validação de conflito
 }
 
 public class AvailabilityRequest

@@ -28,7 +28,29 @@ public class ReservationService : IReservationService
         var res = await _reservationRepo.GetByIdAsync(id, ct);
         if (res == null) return null;
         if (!isAdmin && res.UserId != userId) return null;
-        return MapToDto(res);
+        
+        var dto = MapToDto(res);
+        
+        // Se foi reagendada, busca informações da reserva original
+        if (res.ReagendadaDeReservationId.HasValue)
+        {
+            var original = await _reservationRepo.GetByIdAsync(res.ReagendadaDeReservationId.Value, ct);
+            if (original != null)
+            {
+                var dias = (original.DataFim - original.DataInicio).Days;
+                if (dias < 1) dias = 1;
+                dto.ReservaOriginal = new ReservationOriginalInfo
+                {
+                    Id = original.Id,
+                    DataInicio = original.DataInicio,
+                    DataFim = original.DataFim,
+                    RoomNumero = original.Room?.Numero,
+                    PrecoTotal = original.ValorTotal ?? (original.Room != null ? original.Room.PrecoDiaria * dias : null)
+                };
+            }
+        }
+        
+        return dto;
     }
 
     public async Task<(List<ReservationDto> Items, int Total)> GetByUserAsync(int userId, int page, int pageSize, CancellationToken ct = default)
@@ -62,12 +84,16 @@ public class ReservationService : IReservationService
         var dataInicio = request.DataInicio.Date;
         var dataFim = request.DataFim.Date;
 
-        var hasConflict = await _reservationRepo.HasConflictAsync(request.RoomId, dataInicio, dataFim, null, ct);
+        // Se ExcludeReservationId foi informado (reagendamento), exclui essa reserva da validação de conflito
+        var excludeReservationId = request.ExcludeReservationId;
+
+        var hasConflict = await _reservationRepo.HasConflictAsync(request.RoomId, dataInicio, dataFim, excludeReservationId, ct);
         if (hasConflict)
             return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.RoomConflict };
 
         // Mesmo usuário não pode ter duas reservas que compartilhem qualquer dia (ex.: 06–11 e 06–12 são sobrepostas)
-        var overlappingIds = await _reservationRepo.GetUserOverlappingIdsAsync(userId, dataInicio, dataFim, null, ct);
+        // Mas exclui a reserva que está sendo reagendada
+        var overlappingIds = await _reservationRepo.GetUserOverlappingIdsAsync(userId, dataInicio, dataFim, excludeReservationId, ct);
         if (overlappingIds.Count > 0)
             return new CreateReservationResult { Success = false, FailureReason = CreateReservationFailureReason.UserOverlap, OverlappingReservationIds = overlappingIds };
 
@@ -129,7 +155,8 @@ public class ReservationService : IReservationService
             CodigoPix = paymentResult?.CodigoPix,
             CodigoBoleto = paymentResult?.CodigoBoleto,
             TokenPagamento = request.TokenPagamento,
-            DataPagamento = paymentResult?.Success == true && statusPagamento == "Pago" ? DateTime.UtcNow : null
+            DataPagamento = paymentResult?.Success == true && statusPagamento == "Pago" ? DateTime.UtcNow : null,
+            ReagendadaDeReservationId = excludeReservationId // Marca como reagendada se houver excludeReservationId
         };
 
         // Adiciona hóspedes adicionais
@@ -243,7 +270,8 @@ public class ReservationService : IReservationService
             MetodoPagamento = r.MetodoPagamento,
             StatusPagamento = r.StatusPagamento,
             CodigoPix = r.CodigoPix,
-            CodigoBoleto = r.CodigoBoleto
+            CodigoBoleto = r.CodigoBoleto,
+            ReagendadaDeReservationId = r.ReagendadaDeReservationId
         };
     }
 }

@@ -25,6 +25,9 @@ public class Reservation
     public string? TokenPagamento { get; set; } // Token do cartão (simulado)
     public DateTime? DataPagamento { get; set; }
 
+    // Reagendamento: ID da reserva original que foi substituída por esta
+    public int? ReagendadaDeReservationId { get; set; }
+
     public User User { get; set; } = null!;
     public Room Room { get; set; } = null!;
     public ICollection<Guest> Guests { get; set; } = new List<Guest>();

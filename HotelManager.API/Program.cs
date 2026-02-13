@@ -107,6 +107,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.EnsureCreatedAsync();
     await EnsureJwtSchemaAsync(db, connectionString);
+    await EnsureReservationSchemaAsync(db, connectionString);
     await SeedAdminIfNeeded(db);
     await SeedTestUserIfNeeded(db);
     await SeedRoomsIfNeeded(db);
@@ -209,6 +210,64 @@ static async Task EnsureJwtSchemaAsync(ApplicationDbContext db, string connectio
         ("UltimoLogin", "ALTER TABLE \"Users\" ADD COLUMN \"UltimoLogin\" TEXT"),
         ("TwoFactorEnabled", "ALTER TABLE \"Users\" ADD COLUMN \"TwoFactorEnabled\" INTEGER NOT NULL DEFAULT 0"),
         ("HotelId", "ALTER TABLE \"Users\" ADD COLUMN \"HotelId\" INTEGER")
+    };
+
+    foreach (var (columnName, sql) in columnsToAdd)
+    {
+        if (!existingColumns.Contains(columnName))
+        {
+            try 
+            { 
+                await db.Database.ExecuteSqlRawAsync(sql); 
+            }
+            catch 
+            { 
+                /* coluna pode ter sido criada por outro processo ou erro inesperado */ 
+            }
+        }
+    }
+}
+
+static async Task EnsureReservationSchemaAsync(ApplicationDbContext db, string connectionString)
+{
+    if (!connectionString.Contains("Data Source=") || connectionString.Contains("Server="))
+        return;
+    
+    // Verificar quais colunas já existem na tabela Reservations
+    var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    try
+    {
+        var connection = db.Database.GetDbConnection();
+        var wasOpen = connection.State == System.Data.ConnectionState.Open;
+        if (!wasOpen)
+        {
+            await db.Database.OpenConnectionAsync();
+        }
+        
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM pragma_table_info('Reservations')";
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var columnName = reader.GetString(0);
+                existingColumns.Add(columnName);
+            }
+        }
+        finally
+        {
+            if (!wasOpen)
+            {
+                await db.Database.CloseConnectionAsync();
+            }
+        }
+    }
+    catch { /* erro ao verificar colunas - continuar tentando adicionar */ }
+
+    // Adicionar apenas as colunas que não existem
+    var columnsToAdd = new[] {
+        ("ReagendadaDeReservationId", "ALTER TABLE \"Reservations\" ADD COLUMN \"ReagendadaDeReservationId\" INTEGER")
     };
 
     foreach (var (columnName, sql) in columnsToAdd)

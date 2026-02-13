@@ -34,6 +34,29 @@
           }
         </dl>
 
+        @if (r.reservaOriginal) {
+          <div class="rescheduling-info">
+            <h3>🔄 Reserva Reagendada</h3>
+            <p>Esta reserva foi reagendada. Informações da reserva original:</p>
+            <dl class="details">
+              <dt>Reserva original</dt>
+              <dd>#{{ r.reservaOriginal.id }}</dd>
+              <dt>Check-in original</dt>
+              <dd>{{ formatDate(r.reservaOriginal.dataInicio) }}</dd>
+              <dt>Check-out original</dt>
+              <dd>{{ formatDate(r.reservaOriginal.dataFim) }}</dd>
+              @if (r.reservaOriginal.roomNumero) {
+                <dt>Quarto original</dt>
+                <dd>Quarto {{ r.reservaOriginal.roomNumero }}</dd>
+              }
+              @if (r.reservaOriginal.precoTotal != null) {
+                <dt>Valor original</dt>
+                <dd>R$ {{ r.reservaOriginal.precoTotal | number:'1.2-2' }}</dd>
+              }
+            </dl>
+          </div>
+        }
+
         @if (canCancelOrReschedule) {
           <div class="actions">
             <button type="button" class="btn-secondary" (click)="reagendar()">

@@ -122,6 +122,7 @@ export class ReservationDetailComponent {
     const dataInicio = r.dataInicio.slice(0, 10);
     const dataFim = r.dataFim.slice(0, 10);
     this.search.setParams({ dataInicio, dataFim, hospedes: 2, quartos: 1 });
-    this.router.navigate(['/reservar', r.roomId]);
+    // Passa o ID da reserva existente via query param para excluí-la da validação de conflito
+    this.router.navigate(['/reservar', r.roomId], { queryParams: { reagendar: r.id } });
   }
 }

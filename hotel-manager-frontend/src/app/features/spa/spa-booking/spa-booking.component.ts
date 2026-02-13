@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 import { SPA_BOOKING_PACKAGES, SpaBookingPackage, calculateSpaPackagePrice } from '../../../core/constants/spa-booking-packages';
 
 @Component({
@@ -17,6 +18,7 @@ export class SpaBookingComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   readonly auth = inject(AuthService);
+  private readonly reservationState = inject(ReservationStateService);
 
   /** Quando true, exibido dentro do painel admin (link "Voltar" vai para o painel) */
   isAdminContext = input<boolean>(false);
@@ -88,6 +90,24 @@ export class SpaBookingComponent {
   ];
 
   ngOnInit() {
+    // Verificar se há estado pendente para restaurar
+    const pendingState = this.reservationState.getPendingState();
+    if (pendingState && this.auth.isLoggedIn() && !this.auth.isAdmin()) {
+      // Restaurar query params do estado pendente
+      if (pendingState.queryParams) {
+        const packageId = pendingState.queryParams['pacote'];
+        if (packageId) {
+          const pkg = this.packages.find(p => p.id === packageId);
+          if (pkg) {
+            // Limpar estado pendente antes de selecionar pacote
+            this.reservationState.clearPendingState();
+            this.selectPackage(pkg);
+            return;
+          }
+        }
+      }
+    }
+
     const packageId = this.route.snapshot.queryParamMap.get('pacote');
     if (packageId) {
       const pkg = this.packages.find(p => p.id === packageId);
@@ -126,6 +146,24 @@ export class SpaBookingComponent {
   }
 
   selectPackage(pkg: SpaBookingPackage) {
+    // Verificar se o usuário está logado antes de continuar
+    if (!this.auth.isLoggedIn() || this.auth.isAdmin()) {
+      // Salvar estado atual antes de redirecionar
+      const currentUrl = '/spa/agendar'; // URL fixa do spa booking
+      const queryParams: Record<string, string> = {
+        pacote: pkg.id
+      };
+      
+      // Salvar estado pendente
+      this.reservationState.savePendingState(currentUrl, queryParams);
+      
+      // Redirecionar para login
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: `${currentUrl}?pacote=${pkg.id}` } 
+      });
+      return;
+    }
+
     this.selectedPackage.set(pkg);
     this.form.patchValue({
       packageId: pkg.id,

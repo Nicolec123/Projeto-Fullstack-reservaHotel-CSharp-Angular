@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, Room } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationStateService } from '../../../core/services/reservation-state.service';
 import { SPA_ADDONS, SpaAddOn } from '../../../core/constants/spa-addons';
 import { SPA_BOOKING_PACKAGES, SpaBookingPackage, calculateSpaPackagePrice } from '../../../core/constants/spa-booking-packages';
 
@@ -20,6 +21,7 @@ export class SimularComponent {
   private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   readonly auth = inject(AuthService);
+  private readonly reservationState = inject(ReservationStateService);
 
   room = signal<Room | null>(null);
   loading = signal(true);
@@ -96,10 +98,14 @@ export class SimularComponent {
       queryParams.spaPackage = pkg.id;
       queryParams.spaPessoas = this.packageNumPessoas();
     }
-    const returnUrl = `/reservar/${r.id}${Object.keys(queryParams).length > 0 ? '?' + new URLSearchParams(queryParams).toString() : ''}`;
+    const reserveUrl = `/reservar/${r.id}`;
+    
     if (this.auth.isLoggedIn() && !this.auth.isAdmin()) {
       this.router.navigate(['/reservar', r.id], { queryParams });
-    } else if (!this.auth.isLoggedIn()) {
+    } else {
+      // Salvar estado pendente antes de redirecionar
+      this.reservationState.savePendingState(reserveUrl, queryParams);
+      const returnUrl = `${reserveUrl}${Object.keys(queryParams).length > 0 ? '?' + new URLSearchParams(queryParams).toString() : ''}`;
       this.router.navigate(['/login'], { queryParams: { returnUrl } });
     }
   }
@@ -114,10 +120,14 @@ export class SimularComponent {
   apenasQuarto() {
     const r = this.room();
     if (!r || r.bloqueado) return;
+    const reserveUrl = `/reservar/${r.id}`;
+    
     if (this.auth.isLoggedIn() && !this.auth.isAdmin()) {
       this.router.navigate(['/reservar', r.id]);
     } else {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/reservar/${r.id}` } });
+      // Salvar estado pendente antes de redirecionar
+      this.reservationState.savePendingState(reserveUrl);
+      this.router.navigate(['/login'], { queryParams: { returnUrl: reserveUrl } });
     }
   }
 }
